@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CHARLYS_GOD_MODE_V12</title>
+    <title>CHARLYS_GOD_MODE_V11</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --p: #00f2ff; /* Ciano Inicial */
+            --p: #00f2ff; /* Cor inicial: Ciano */
             --s: #ff0055;
-            --bg: #020204;
-            --glow: 0 0 20px var(--p);
+            --bg: #030305;
+            --glow: 0 0 25px var(--p);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -24,278 +24,323 @@
             font-family: 'JetBrains Mono', monospace;
             height: 100vh;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            transition: background 0.5s ease;
         }
 
-        /* --- BACKGROUND DE PARTÍCULAS INTERATIVAS --- */
-        #particles {
+        /* --- BACKGROUND DE PARTÍCULAS MAGNÉTICAS --- */
+        #particle-canvas {
             position: fixed; top: 0; left: 0; z-index: -1;
-            filter: blur(0.5px);
+            filter: drop-shadow(0 0 5px var(--p));
         }
 
-        /* --- CONTAINER PRINCIPAL --- */
-        .master-container {
-            flex: 1;
+        /* --- LAYOUT PRINCIPAL --- */
+        .wrapper {
             display: flex;
             flex-direction: column;
-            padding: 10px;
-            gap: 10px;
-            max-width: 1000px;
+            height: 100vh;
+            padding: 15px;
+            gap: 15px;
+            max-width: 1200px;
             margin: 0 auto;
-            width: 100%;
         }
 
+        /* --- HEADER --- */
         header {
             background: rgba(0,0,0,0.8);
             border: 1px solid var(--p);
-            padding: 10px;
+            padding: 15px;
             text-align: center;
             box-shadow: var(--glow);
             border-radius: 4px;
         }
 
-        /* --- PERFIL E CONTROLE DE COR --- */
-        .profile-box {
+        /* --- PERFIL INTERATIVO (O COMANDANTE) --- */
+        .profile-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px;
+            padding: 20px;
         }
 
-        .photo-trigger {
-            width: 140px; height: 140px;
-            border: 3px solid var(--p);
+        .photo-frame {
+            width: 160px; height: 160px;
             border-radius: 50%;
+            border: 4px solid var(--p);
             padding: 5px;
             cursor: pointer;
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: var(--glow);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
 
-        .photo-trigger:active { transform: scale(0.9); }
-        .photo-trigger img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .photo-frame:hover { transform: scale(1.1) rotate(5deg); border-color: var(--s); }
+        .photo-frame:active { transform: scale(0.9); }
 
-        /* --- BOTÕES CYBER --- */
-        .actions {
+        .photo-frame img {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* --- BOTÕES COM EFEITO MOUSE E GLOW --- */
+        .links-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
             width: 100%;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
-        .btn-link {
-            background: rgba(0,0,0,0.6);
+        .cyber-btn {
+            background: rgba(0,0,0,0.7);
             border: 1px solid var(--p);
             color: var(--p);
-            padding: 12px;
+            padding: 15px;
+            font-family: 'Orbitron';
             text-decoration: none;
             text-align: center;
-            font-family: 'Orbitron';
-            font-size: 10px;
+            font-size: 11px;
+            position: relative;
+            overflow: hidden;
             transition: 0.3s;
-            box-shadow: inset 0 0 10px rgba(0, 242, 255, 0.1);
+            cursor: pointer;
         }
 
-        .btn-link:hover { background: var(--p); color: #000; box-shadow: 0 0 25px var(--p); }
+        .cyber-btn:hover {
+            background: var(--p);
+            color: #000;
+            box-shadow: 0 0 30px var(--p);
+            transform: translateY(-3px);
+        }
 
-        /* --- JOGO TITAN (TOTALMENTE TOUCH) --- */
-        .game-area {
+        /* --- MOTOR DE JOGO ADAPTATIVO --- */
+        .game-viewport {
             flex: 1;
             background: #000;
             border: 2px solid var(--p);
             border-radius: 8px;
             position: relative;
+            box-shadow: inset 0 0 50px rgba(0,242,255,0.2);
             overflow: hidden;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
         }
 
-        #game-canvas { width: 100%; height: 100%; touch-action: none; }
+        #game-canvas { width: 100%; height: 100%; }
 
-        .hud {
-            position: absolute; top: 10px; width: 100%;
-            display: flex; justify-content: space-around;
-            font-family: 'Orbitron'; font-size: 12px; pointer-events: none;
-            text-shadow: 0 0 10px var(--p);
+        .game-ui {
+            position: absolute; top: 15px; width: 100%;
+            padding: 0 20px; display: flex; justify-content: space-between;
+            font-family: 'Orbitron'; pointer-events: none;
         }
 
-        /* --- PLAYER DE MÚSICA --- */
-        .music-bar {
+        /* BOTÃO DE SALTO TOUCH (SÓ MOBILE) */
+        .mobile-jump-zone {
+            display: none;
+            position: absolute; inset: 0;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-jump-zone { display: block; }
+            .links-grid { grid-template-columns: 1fr; }
+        }
+
+        /* MENSAGEM DE START */
+        .overlay {
+            position: absolute; inset: 0;
             background: rgba(0,0,0,0.9);
-            border-top: 1px solid var(--p);
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .play-btn {
-            background: var(--p);
-            color: #000;
-            border: none;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            box-shadow: var(--glow);
-        }
-
-        .boot-screen {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.95);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 100;
+            z-index: 20;
         }
+
+        /* --- ESTILO ADICIONAL PARA O PLAYER DE RÁDIO --- */
+        .radio-control {
+            margin-top: 15px;
+            width: 100%;
+        }
+
     </style>
 </head>
-<body onload="init()">
+<body onload="initSystem()">
 
-    <canvas id="particles"></canvas>
+    <canvas id="particle-canvas"></canvas>
 
-    <div class="master-container">
+    <div class="wrapper">
         <header>
-            <h1 style="font-family: 'Orbitron'; font-size: 12px; letter-spacing: 4px; color: var(--p);">CHARLYS_ULTIMATE_V12</h1>
+            <h1 style="font-family: 'Orbitron'; font-size: 14px; letter-spacing: 5px; color: var(--p);">TITAN_NEURAL_STORM // V11</h1>
         </header>
 
-        <section class="profile-box">
-            <div class="photo-trigger" onclick="swapTheme()" id="myPhoto">
+        <section class="profile-area">
+            <div class="photo-frame" onclick="changeTheme()" title="Clique para mudar a cor do sistema!">
                 <img src="20260207_132012[1].jpg" alt="Charlys">
             </div>
-            <h2 style="font-family: 'Orbitron'; margin-top: 10px; font-size: 1.2rem;">CHARLYS</h2>
+            <h2 style="font-family: 'Orbitron'; margin-top: 15px; letter-spacing: 2px;">CHARLYS</h2>
             
-            <div class="actions">
-                <a href="https://instagram.com/inimigo_do_amigo.ofc" target="_blank" class="btn-link"><i class="fab fa-instagram"></i> INSTA</a>
-                <a href="https://wa.me/5569992919920" target="_blank" class="btn-link"><i class="fab fa-whatsapp"></i> WHATS</a>
+            <div class="links-grid">
+                <a href="https://instagram.com/inimigo_do_amigo.ofc" target="_blank" class="cyber-btn"><i class="fab fa-instagram"></i> INSTAGRAM</a>
+                <a href="https://wa.me/5569992919920" target="_blank" class="cyber-btn"><i class="fab fa-whatsapp"></i> WHATSAPP</a>
+                
+                <div id="radioBtn" onclick="toggleRadio()" class="cyber-btn" style="grid-column: span 2;">
+                    <i class="fas fa-broadcast-tower"></i> <span id="radioStatus">ATIVAR_RADIO_CYBERPUNK</span>
+                </div>
             </div>
         </section>
 
-        <div class="game-area" id="gameFrame">
-            <div class="hud">
-                <div>SCORE: <span id="score">0000</span></div>
-                <div id="status" style="color:var(--s)">STANDBY</div>
+        <div class="game-viewport" id="gameBox">
+            <div class="game-ui">
+                <div style="color: var(--p);">SCORE: <span id="score">0000</span></div>
+                <div style="color: var(--s);">FPS: <span id="fps">120</span></div>
             </div>
-            <canvas id="game-canvas"></canvas>
             
-            <div id="boot" class="boot-screen">
-                <h2 style="font-family:'Orbitron'; color: var(--p); margin-bottom: 20px;">SYSTEM READY</h2>
-                <button onclick="startEngine()" class="btn-link" style="width: 200px;">INICIAR MOTOR</button>
-                <p style="font-size: 8px; margin-top: 10px; opacity: 0.5;">[ TOQUE NA TELA PARA PULAR ]</p>
-            </div>
-        </div>
+            <canvas id="game-canvas"></canvas>
+            <div class="mobile-jump-zone" id="touchZone"></div>
 
-        <div class="music-bar">
-            <button class="play-btn" onclick="toggleMusic()" id="mBtn"><i class="fas fa-play"></i></button>
-            <div style="font-size: 10px;">
-                <div style="color:var(--p)">RADIO_SYNTH_WAVE</div>
-                <div style="opacity: 0.5;">LIVE_STREAMING_V12</div>
+            <div id="boot" class="overlay">
+                <h2 style="font-family:'Orbitron'; color: var(--p); margin-bottom: 20px;">SYSTEM_READY</h2>
+                <button onclick="startGame()" class="cyber-btn" style="width: 200px;">ENGAGE_TITAN</button>
             </div>
-            <audio id="player" loop src="https://stream.nightride.fm/nightride.mp3"></audio>
         </div>
     </div>
 
-    <script>
-        // --- MOTOR DE PARTÍCULAS ---
-        const pCanvas = document.getElementById('particles');
-        const pCtx = pCanvas.getContext('2d');
-        let parts = [];
-        let themes = ['#00f2ff', '#ff0055', '#bcff00', '#ffaa00'];
-        let tIdx = 0;
+    <audio id="cyberRadio" loop>
+        <source src="https://stream.nightride.fm/nightride.mp3" type="audio/mpeg">
+    </audio>
 
-        function init() {
-            pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight;
-            parts = [];
-            for(let i=0; i<100; i++) parts.push({x: Math.random()*pCanvas.width, y: Math.random()*pCanvas.height, s: Math.random()*2, vx: Math.random()-0.5, vy: Math.random()-0.5});
-            animate();
+    <script>
+        // --- CONTROLE DA RÁDIO ---
+        const radio = document.getElementById('cyberRadio');
+        const radioStatus = document.getElementById('radioStatus');
+        let radioPlaying = false;
+
+        function toggleRadio() {
+            if (!radioPlaying) {
+                radio.play().catch(e => console.log("Erro ao iniciar áudio: Requer interação do usuário."));
+                radioStatus.innerText = "RADIO_ONLINE // DISCONECT";
+                radioPlaying = true;
+                document.getElementById('radioBtn').style.borderColor = "var(--s)";
+                document.getElementById('radioBtn').style.color = "var(--s)";
+            } else {
+                radio.pause();
+                radioStatus.innerText = "ATIVAR_RADIO_CYBERPUNK";
+                radioPlaying = false;
+                document.getElementById('radioBtn').style.borderColor = "var(--p)";
+                document.getElementById('radioBtn').style.color = "var(--p)";
+            }
         }
 
-        function animate() {
-            pCtx.fillStyle = 'rgba(2, 2, 4, 0.1)'; pCtx.fillRect(0,0,pCanvas.width, pCanvas.height);
-            pCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--p');
-            parts.forEach(p => {
+        // --- MOTOR DE PARTÍCULAS MAGNÉTICAS ---
+        const pCanvas = document.getElementById('particle-canvas');
+        const pCtx = pCanvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null };
+
+        function initParticles() {
+            pCanvas.width = window.innerWidth;
+            pCanvas.height = window.innerHeight;
+            particles = [];
+            for(let i=0; i<120; i++) {
+                particles.push({
+                    x: Math.random() * pCanvas.width,
+                    y: Math.random() * pCanvas.height,
+                    size: Math.random() * 2 + 1,
+                    vx: Math.random() * 2 - 1,
+                    vy: Math.random() * 2 - 1
+                });
+            }
+        }
+
+        function animateParticles() {
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            let color = getComputedStyle(document.documentElement).getPropertyValue('--p');
+            pCtx.fillStyle = color;
+            pCtx.strokeStyle = color;
+
+            particles.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if(p.x < 0 || p.x > pCanvas.width) p.vx *= -1;
                 if(p.y < 0 || p.y > pCanvas.height) p.vy *= -1;
-                pCtx.beginPath(); pCtx.arc(p.x, p.y, p.s, 0, Math.PI*2); pCtx.fill();
+
+                let dx = mouse.x - p.x;
+                let dy = mouse.y - p.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < 150) {
+                    p.x += dx * 0.02;
+                    p.y += dy * 0.02;
+                    pCtx.beginPath(); pCtx.moveTo(p.x, p.y); pCtx.lineTo(mouse.x, mouse.y);
+                    pCtx.globalAlpha = 0.2; pCtx.stroke(); pCtx.globalAlpha = 1;
+                }
+
+                pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size, 0, Math.PI*2); pCtx.fill();
             });
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateParticles);
         }
 
-        // --- TROCA DE COR NA FOTO ---
-        function swapTheme() {
-            tIdx = (tIdx + 1) % themes.length;
-            document.documentElement.style.setProperty('--p', themes[tIdx]);
-            log("Cor do sistema alterada.");
+        // --- TROCA DE TEMA ---
+        const themes = ['#00f2ff', '#ff0055', '#bcff00', '#ffaa00', '#a200ff'];
+        let currentTheme = 0;
+        function changeTheme() {
+            currentTheme = (currentTheme + 1) % themes.length;
+            document.documentElement.style.setProperty('--p', themes[currentTheme]);
+            initParticles();
         }
 
-        // --- JOGO TITAN (TOUCH TOTAL) ---
+        // --- TITAN GAME ENGINE ---
         const gCanvas = document.getElementById('game-canvas');
         const gCtx = gCanvas.getContext('2d');
-        let active = false, score = 0, py = 0, pv = 0, obstacles = [], frame = 0;
+        let playing = false, score = 0, py = 0, pv = 0, obstacles = [], frame = 0;
 
-        function startEngine() {
-            active = true; score = 0; obstacles = []; py = 0;
+        function startGame() {
+            playing = true; score = 0; obstacles = []; py = 0;
             document.getElementById('boot').style.display = 'none';
-            document.getElementById('status').innerText = "LIVE";
-            loop();
+            // Tenta iniciar a rádio automaticamente ao começar o jogo se ainda estiver desligada
+            if(!radioPlaying) toggleRadio();
+            gameLoop();
         }
 
-        function jump() { if(py === 0 && active) pv = -16; }
+        function gameJump() { if(py === 0 && playing) pv = -15; }
 
-        // TOQUE NO CELULAR
-        document.getElementById('gameFrame').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            jump();
-        });
-
-        // ESPAÇO NO PC
-        window.addEventListener('keydown', (e) => { if(e.code === 'Space') jump(); });
-
-        function loop() {
-            if(!active) return;
+        function gameLoop() {
+            if(!playing) return;
             gCanvas.width = gCanvas.parentElement.offsetWidth;
             gCanvas.height = gCanvas.parentElement.offsetHeight;
-            let floor = gCanvas.height - 40;
-            gCtx.clearRect(0,0,gCanvas.width, gCanvas.height);
+            let floor = gCanvas.height - 50;
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
 
             pv += 0.8; py += pv;
             if(py > 0) { py = 0; pv = 0; }
 
-            // Desenhar Moto com Brilho Dinâmico
-            gCtx.shadowBlur = 15; gCtx.shadowColor = themes[tIdx];
+            gCtx.shadowBlur = 20; gCtx.shadowColor = themes[currentTheme];
             gCtx.font = "40px Arial";
             gCtx.fillText("🏍️", 50, floor + py);
             gCtx.shadowBlur = 0;
 
-            // Obstáculos
-            if(frame % 85 === 0) obstacles.push({x: gCanvas.width});
+            if(frame % 80 === 0) obstacles.push({ x: gCanvas.width });
             obstacles.forEach((o, i) => {
                 o.x -= (8 + score/1000);
                 gCtx.fillText("🚧", o.x, floor);
-                if(o.x > 40 && o.x < 90 && py > -25) {
-                    active = false;
+                if(o.x > 40 && o.x < 80 && py > -25) {
+                    playing = false;
                     document.getElementById('boot').style.display = 'flex';
-                    document.getElementById('boot').innerHTML = `<h2 style="color:var(--s)">CRASHED</h2><button onclick="startEngine()" class="btn-link">REBOOT</button>`;
+                    document.getElementById('boot').innerHTML = `<h2 style="color:var(--s)">CRASHED</h2><button onclick="startGame()" class="cyber-btn">REBOOT</button>`;
                 }
                 if(o.x < -50) { obstacles.splice(i, 1); score += 100; }
             });
 
             document.getElementById('score').innerText = score.toString().padStart(4, '0');
-            frame++; requestAnimationFrame(loop);
+            frame++; requestAnimationFrame(gameLoop);
         }
 
-        // --- ÁUDIO ---
-        function toggleMusic() {
-            const p = document.getElementById('player');
-            const b = document.getElementById('mBtn');
-            if(p.paused) {
-                p.play();
-                b.innerHTML = '<i class="fas fa-pause"></i>';
-            } else {
-                p.pause();
-                b.innerHTML = '<i class="fas fa-play"></i>';
-            }
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('touchstart', e => { 
+            mouse.x = e.touches[0].clientX; 
+            mouse.y = e.touches[0].clientY; 
+            gameJump(); 
+        });
+        window.addEventListener('keydown', e => { if(e.code === 'Space') gameJump(); });
+        window.onresize = initParticles;
+
+        function initSystem() {
+            initParticles();
+            animateParticles();
         }
     </script>
 </body>
