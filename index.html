@@ -60,7 +60,7 @@
         .btn-yt { background: #ff0000; grid-column: span 2; }
         .btn:hover { transform: translateY(-3px); filter: brightness(1.2); }
 
-        /* JOGO ESTILO GOOGLE DINO */
+        /* JOGO CALIBRADO PARA MOBILE */
         #game-area {
             margin-top: 30px;
             width: 90%;
@@ -72,18 +72,19 @@
             position: relative;
             overflow: hidden;
             cursor: pointer;
+            touch-action: manipulation; /* Melhora o toque no celular */
         }
 
         #player { 
             position: absolute; 
             bottom: 5px; 
             left: 30px; 
-            font-size: 35px; 
+            font-size: 40px; 
             z-index: 2; 
-            transform: scaleX(-1); /* Vira a moto para frente */
+            transform: scaleX(-1);
         }
 
-        #obstacle { position: absolute; bottom: 5px; right: -50px; font-size: 25px; }
+        #obstacle { position: absolute; bottom: 5px; right: -50px; font-size: 30px; }
         
         #road {
             position: absolute;
@@ -91,7 +92,7 @@
             background: repeating-linear-gradient(90deg, #444 0, #444 20px, transparent 20px, transparent 40px);
         }
 
-        .road-move { animation: road-move 0.5s linear infinite; }
+        .road-move { animation: road-move 0.6s linear infinite; }
         @keyframes road-move { from { left: 0; } to { left: -40px; } }
 
         #game-msg {
@@ -99,6 +100,7 @@
             background: rgba(0,0,0,0.8);
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; color: var(--neon-green); z-index: 5; text-align: center;
+            padding: 10px; box-sizing: border-box;
         }
     </style>
 </head>
@@ -128,8 +130,8 @@
     </div>
 </div>
 
-<div id="game-area" onmousedown="handleInput()">
-    <div id="game-msg">CLIQUE PARA ACELERAR <br> (ESPAÇO PULA)</div>
+<div id="game-area" onmousedown="event.preventDefault(); handleInput();" ontouchstart="event.preventDefault(); handleInput();">
+    <div id="game-msg">TOQUE PARA ACELERAR <br> (ESPAÇO PULA)</div>
     <div id="road"></div>
     <div id="player">🏍️</div>
     <div id="obstacle">🚧</div>
@@ -141,6 +143,10 @@
     let score = 0;
     let isJumping = false;
     
+    // Detecta se é celular para ajustar velocidade
+    const isMobile = window.innerWidth < 600;
+    const gameSpeed = isMobile ? 7 : 11; // No celular o obstáculo move mais devagar
+
     const player = document.getElementById("player");
     const obstacle = document.getElementById("obstacle");
     const road = document.getElementById("road");
@@ -167,22 +173,22 @@
         isJumping = true;
         
         let p = 5;
-        // Subida rápida
+        // Subida instantânea
         let up = setInterval(() => {
             if (p >= 100) {
                 clearInterval(up);
-                // Queda rápida (Física do Dino)
+                // Queda pesada (Dino physics)
                 let down = setInterval(() => {
                     if (p <= 5) {
                         clearInterval(down);
                         isJumping = false;
                         player.style.bottom = "5px";
                     }
-                    p -= 8;
-                    player.style.bottom = p + "px";
+                    p -= 10;
+                    player.style.bottom = (p < 5 ? 5 : p) + "px";
                 }, 12);
             }
-            p += 10;
+            p += 12;
             player.style.bottom = p + "px";
         }, 12);
     }
@@ -198,11 +204,11 @@
             score += 10;
             scoreText.innerHTML = "KM: " + score;
         } else {
-            obstacle.style.right = (obsRight + 11) + "px"; // Velocidade da pista
+            obstacle.style.right = (obsRight + gameSpeed) + "px"; 
         }
 
-        // Colisão ajustada para o tamanho do emoji
-        if (obsRight > 310 && obsRight < 355 && plyBottom < 45) {
+        // Colisão calibrada para emojis
+        if (obsRight > 300 && obsRight < 360 && plyBottom < 50) {
             gameOver();
             return;
         }
@@ -212,7 +218,7 @@
     function gameOver() {
         isPlaying = false;
         road.classList.remove("road-move");
-        msg.innerHTML = "BATEU A TITAN! <br> CLIQUE PARA RECOMEÇAR";
+        msg.innerHTML = "BATEU A TITAN! <br> TOQUE PARA RECOMEÇAR";
         msg.style.display = "flex";
         player.style.bottom = "5px";
         isJumping = false;
