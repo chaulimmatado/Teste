@@ -3,237 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charlys | Ultimate Profile</title>
+    <title>Charlys | Official</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #ff4b2b;
-            --secondary: #00d2ff;
-            --neon-green: #39ff14;
-            --bg: #050505;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: var(--bg);
-            background-image: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
-            color: white;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            transition: 0.5s;
-        }
-
-        .card {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(15px);
-            border-radius: 30px;
-            padding: 30px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 20px var(--primary);
-            border: 2px solid var(--primary);
-            transition: 0.3s;
-        }
-
-        .profile-img {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            border: 3px solid white;
-            object-fit: cover;
-            cursor: pointer;
-            transition: 0.4s;
-        }
-
-        .profile-img:active { transform: scale(0.9); }
-
-        .bio { font-size: 14px; color: #ccc; line-height: 1.6; margin: 15px 0; }
-
-        .skill-bar { height: 8px; background: #222; border-radius: 4px; margin: 8px 0 15px; overflow: hidden; }
-        .skill-progress { height: 100%; background: var(--secondary); box-shadow: 0 0 10px var(--secondary); transition: 2s; }
+        :root { --primary: #ff4b2b; --secondary: #00d2ff; --neon: #39ff14; --bg: #050505; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px 0; transition: 0.5s; }
+        
+        .card { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); border-radius: 30px; padding: 30px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px var(--primary); border: 2px solid var(--primary); transition: 0.3s; }
+        .profile-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid white; object-fit: cover; cursor: pointer; }
+        .bio { font-size: 14px; color: #ccc; margin: 15px 0; }
 
         .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn { padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; transition: 0.3s; }
-        .btn-insta { background: #E1306C; }
-        .btn-whats { background: #25D366; }
-        .btn-yt { background: #ff0000; grid-column: span 2; }
+        .btn { padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
+        .btn-insta { background: #E1306C; } .btn-whats { background: #25D366; } .btn-yt { background: #ff0000; grid-column: span 2; }
 
-        /* JOGO */
-        #game-area {
-            margin-top: 30px; width: 90%; max-width: 400px; height: 150px;
-            background: #0a0a0a; border: 2px solid #333; border-radius: 20px;
-            position: relative; overflow: hidden; cursor: pointer; touch-action: manipulation;
-        }
-
-        #player { position: absolute; bottom: 5px; left: 30px; font-size: 40px; z-index: 2; transform: scaleX(-1); }
-        #obstacle { position: absolute; bottom: 5px; right: -50px; font-size: 30px; }
+        /* GAME ENGINE */
+        #game-area { margin-top: 30px; width: 90%; max-width: 400px; height: 150px; background: #000; border: 2px solid #333; border-radius: 20px; position: relative; overflow: hidden; touch-action: none; }
+        #player { position: absolute; bottom: 5px; left: 30px; font-size: 35px; transform: scaleX(-1); line-height: 1; }
+        #obstacle { position: absolute; bottom: 5px; right: -50px; font-size: 25px; line-height: 1; }
         #road { position: absolute; bottom: 0; width: 200%; height: 2px; background: repeating-linear-gradient(90deg, #444 0, #444 20px, transparent 20px, transparent 40px); }
-        .road-move { animation: road-move 0.6s linear infinite; }
+        .moving { animation: road-move 0.5s linear infinite; }
         @keyframes road-move { from { left: 0; } to { left: -40px; } }
-
-        #game-msg {
-            position: absolute; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: var(--neon-green); z-index: 5; text-align: center; padding: 10px; box-sizing: border-box;
-        }
-
-        /* CONTADOR DE CAFÉ */
-        .coffee-section { margin-top: 20px; font-size: 14px; cursor: pointer; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 50px; transition: 0.3s; }
-        .coffee-section:hover { background: rgba(255,255,255,0.2); }
+        #game-msg { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; font-weight: bold; color: var(--neon); text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="card" id="main-card">
-    <img src="20260207_132012[1].jpg" class="profile-img" onclick="changeRGB()" title="Clique para mudar o LED">
+    <img src="20260207_132012[1].jpg" class="profile-img" onclick="changeRGB()">
     <h1>CHARLYS</h1>
-    <p style="color: var(--secondary); margin-top: -10px;">@inimigo_do_amigo.ofc</p>
-    
-    <p class="bio">
-        Piloto de <b>CG Titan 98</b> 🏍️. No PC, domino as estradas no <b>ETS2</b> e toco o terror no <b>GTA V</b>. 
-        Sou animado, engraçado e parceiro. Café na garrafa é lei! ☕
-    </p>
-    
-    <div style="text-align: left;">
-        <span style="font-size: 11px;">PILOTAGEM & SKILL</span>
-        <div class="skill-bar"><div class="skill-progress" id="bar-1" style="width: 90%;"></div></div>
-    </div>
-
+    <p class="bio">Piloto de <b>Titan 98</b> 🏍️. Fera no <b>ETS2</b> e <b>GTA V</b>. Café na garrafa é lei! ☕</p>
     <div class="links-grid">
         <a href="https://instagram.com/inimigo_do_amigo.ofc" class="btn btn-insta" target="_blank"><i class="fab fa-instagram"></i> Insta</a>
         <a href="https://wa.me/5569992919920" class="btn btn-whats" target="_blank"><i class="fab fa-whatsapp"></i> Whats</a>
-        <a href="https://youtu.be/7SGmdnFT3oU" class="btn btn-yt" target="_blank"><i class="fas fa-truck"></i> Ver Gameplay ETS2</a>
-    </div>
-
-    <div class="coffee-section" onclick="addCoffee()">
-        ☕ Café na garrafa: <span id="coffee-count">0</span>
+        <a href="https://youtu.be/7SGmdnFT3oU" class="btn btn-yt" target="_blank"><i class="fas fa-truck"></i> Minhas Gameplays</a>
     </div>
 </div>
 
-<div id="game-area" onmousedown="event.preventDefault(); handleInput();" ontouchstart="event.preventDefault(); handleInput();">
-    <div id="game-msg">TOQUE PARA ACELERAR A TITAN <br> <span style="font-size: 10px; color: #888;">RECORDE: <span id="high-score">0</span> KM</span></div>
+<div id="game-area" onmousedown="handleAction(event)" ontouchstart="handleAction(event)">
+    <div id="game-msg">TOQUE PARA COMEÇAR <br> <small style="color:#888">RECORDE: <span id="hi">0</span> KM</small></div>
     <div id="road"></div>
     <div id="player">🏍️</div>
     <div id="obstacle">🚧</div>
-    <div id="score" style="position: absolute; top: 10px; right: 15px; font-weight: bold;">KM: 0</div>
+    <div id="score" style="position: absolute; top: 10px; right: 15px; font-weight: bold;">0 KM</div>
 </div>
 
 <script>
-    let isPlaying = false;
-    let score = 0;
-    let isJumping = false;
-    let coffeeCount = localStorage.getItem('coffees') || 0;
-    let highScore = localStorage.getItem('highScore') || 0;
+    let playing = false, score = 0, jumping = false;
+    let hi = localStorage.getItem('hi') || 0;
+    document.getElementById('hi').innerText = hi;
 
-    document.getElementById('coffee-count').innerText = coffeeCount;
-    document.getElementById('high-score').innerText = highScore;
+    const p = document.getElementById("player"), o = document.getElementById("obstacle"), 
+          r = document.getElementById("road"), m = document.getElementById("game-msg"), 
+          s = document.getElementById("score");
 
-    // 1. FUNÇÃO RGB (Mudar cores)
-    const colors = [
-        {p: '#ff4b2b', s: '#00d2ff'}, // Original (Laranja/Azul)
-        {p: '#39ff14', s: '#fff'},    // Neon Green
-        {p: '#bc13fe', s: '#ff00ff'}, // Roxo Gamer
-        {p: '#00d2ff', s: '#39ff14'}  // Azul Água
-    ];
-    let colorIndex = 0;
-    function changeRGB() {
-        colorIndex = (colorIndex + 1) % colors.length;
-        const c = colors[colorIndex];
-        document.documentElement.style.setProperty('--primary', c.p);
-        document.documentElement.style.setProperty('--secondary', c.s);
-        document.getElementById('main-card').style.boxShadow = `0 0 20px ${c.p}`;
-    }
+    function handleAction(e) { e.preventDefault(); if(!playing) start(); else jump(); }
 
-    // 2. FUNÇÃO CAFÉ
-    function addCoffee() {
-        coffeeCount++;
-        localStorage.setItem('coffees', coffeeCount);
-        document.getElementById('coffee-count').innerText = coffeeCount;
-    }
-
-    // 3. JOGUINHO (Lógica Dino)
-    const isMobile = window.innerWidth < 600;
-    const gameSpeed = isMobile ? 7 : 11;
-    const player = document.getElementById("player");
-    const obstacle = document.getElementById("obstacle");
-    const road = document.getElementById("road");
-    const msg = document.getElementById("game-msg");
-    const scoreText = document.getElementById("score");
-
-    function handleInput() {
-        if (!isPlaying) startGame();
-        else jump();
-    }
-
-    function startGame() {
-        isPlaying = true;
-        score = 0;
-        msg.style.display = "none";
-        road.classList.add("road-move");
-        gameLoop();
+    function start() {
+        playing = true; score = 0; s.innerText = "0 KM";
+        m.style.display = "none"; r.classList.add("moving");
+        o.style.right = "-50px";
+        loop();
     }
 
     function jump() {
-        if (isJumping) return;
-        isJumping = true;
-        let p = 5;
+        if(jumping) return; jumping = true;
+        let alt = 5;
         let up = setInterval(() => {
-            if (p >= 100) {
-                clearInterval(up);
+            if(alt >= 90) { clearInterval(up);
                 let down = setInterval(() => {
-                    if (p <= 5) {
-                        clearInterval(down);
-                        isJumping = false;
-                        player.style.bottom = "5px";
-                    }
-                    p -= 10;
-                    player.style.bottom = (p < 5 ? 5 : p) + "px";
+                    if(alt <= 5) { clearInterval(down); jumping = false; alt = 5; }
+                    alt -= 8; p.style.bottom = alt + "px";
                 }, 12);
             }
-            p += 12;
-            player.style.bottom = p + "px";
+            alt += 10; p.style.bottom = alt + "px";
         }, 12);
     }
 
-    function gameLoop() {
-        if (!isPlaying) return;
-        let obsRight = parseInt(window.getComputedStyle(obstacle).right);
-        let plyBottom = parseInt(player.style.bottom) || 5;
+    function loop() {
+        if(!playing) return;
+        let oR = parseInt(window.getComputedStyle(o).right);
+        let pB = parseInt(p.style.bottom) || 5;
 
-        if (obsRight > 420) {
-            obstacle.style.right = "-50px";
-            score += 10;
-            scoreText.innerHTML = "KM: " + score;
-        } else {
-            obstacle.style.right = (obsRight + gameSpeed) + "px"; 
-        }
+        if(oR > 420) { o.style.right = "-50px"; score += 10; s.innerText = score + " KM"; } 
+        else { o.style.right = (oR + (window.innerWidth < 600 ? 7 : 10)) + "px"; }
 
-        if (obsRight > 300 && obsRight < 360 && plyBottom < 50) {
-            gameOver();
-            return;
-        }
-        requestAnimationFrame(gameLoop);
+        // Colisão ajustada: a moto tem aprox 40px de largura
+        if(oR > 315 && oR < 350 && pB < 40) die();
+        else requestAnimationFrame(loop);
     }
 
-    function gameOver() {
-        isPlaying = false;
-        road.classList.remove("road-move");
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('highScore', highScore);
-        }
-        msg.innerHTML = `BATEU A TITAN! <br> KM: ${score} | RECORDE: ${highScore} <br> TOQUE PARA RECOMEÇAR`;
-        msg.style.display = "flex";
-        document.getElementById('high-score').innerText = highScore;
-        player.style.bottom = "5px";
-        isJumping = false;
+    function die() {
+        playing = false; r.classList.remove("moving");
+        if(score > hi) { hi = score; localStorage.setItem('hi', hi); }
+        m.innerHTML = `BATEU! <br> ${score} KM <br> RECORDE: ${hi} <br> RECOMEÇAR`;
+        m.style.display = "flex"; document.getElementById('hi').innerText = hi;
+        p.style.bottom = "5px"; jumping = false;
     }
 
-    window.addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); handleInput(); } });
+    function changeRGB() {
+        const colors = ['#ff4b2b', '#39ff14', '#00d2ff', '#bc13fe'];
+        let cur = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        let next = colors[(colors.indexOf(cur) + 1) % colors.length];
+        document.documentElement.style.setProperty('--primary', next);
+        document.getElementById('main-card').style.boxShadow = `0 0 20px ${next}`;
+    }
+
+    window.onkeydown = (e) => { if(e.code === "Space") handleAction(e); };
 </script>
-
 </body>
 </html>
