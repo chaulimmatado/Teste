@@ -25,6 +25,7 @@
             font-family: 'JetBrains Mono', monospace;
             height: 100vh;
             overflow: hidden;
+            touch-action: none; /* Previne scroll acidental no mobile */
         }
 
         #particle-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
@@ -69,6 +70,8 @@
             color: var(--p); padding: 15px; font-family: 'Orbitron';
             text-decoration: none; text-align: center; font-size: 11px;
             cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            touch-action: manipulation; /* Melhora resposta ao toque */
         }
 
         .cyber-btn:hover { background: var(--p); color: #000; box-shadow: 0 0 30px var(--p); }
@@ -82,7 +85,7 @@
             pointer-events: none; z-index: 110;
         }
 
-        .exit-btn { position: absolute; bottom: 20px; right: 20px; z-index: 120; font-size: 10px; }
+        .exit-btn { position: absolute; bottom: 20px; right: 20px; z-index: 120; font-size: 10px; pointer-events: auto; }
 
         .overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.9);
@@ -112,7 +115,7 @@
                 <a href="https://wa.me/5569992919920" target="_blank" class="cyber-btn"><i class="fab fa-whatsapp"></i> WHATSAPP</a>
                 <a href="https://discord.gg/Hgz4j5XXv" target="_blank" class="cyber-btn"><i class="fab fa-discord"></i> DISCORD</a>
                 <div id="radioBtn" onclick="toggleRadio()" class="cyber-btn">
-                    <i class="fas fa-broadcast-tower"></i> <span id="radioStatus">RADIO_ON</span>
+                    <i class="fas fa-broadcast-tower"></i> <span id="radioStatus">RADIO_OFF</span>
                 </div>
             </div>
 
@@ -158,6 +161,7 @@
         }
 
         function analyze() {
+            if(!analyzer) return;
             analyzer.getByteFrequencyData(dataArray);
             let sum = 0;
             for(let i=0; i<10; i++) sum += dataArray[i];
@@ -168,8 +172,9 @@
         }
 
         function toggleRadio() {
+            setupAudioAnalysis();
             if (!radioPlaying) {
-                if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
                 radio.play();
                 radioStatus.innerText = "RADIO_ON";
                 radioPlaying = true;
@@ -201,7 +206,7 @@
         function animateStars() {
             pCtx.fillStyle = "rgba(3, 3, 5, 0.3)";
             pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
-            let color = getComputedStyle(document.documentElement).getPropertyValue('--p');
+            let color = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
             pCtx.fillStyle = color;
             stars.forEach(s => {
                 s.z -= 15;
@@ -230,25 +235,17 @@
                 gCanvas.width = window.innerWidth;
                 gCanvas.height = window.innerHeight;
             }, 100);
-            if (screen.requestFullscreen) screen.requestFullscreen();
         }
 
         function exitGameMode() {
             playing = false;
             document.getElementById('gameScreen').style.display = 'none';
             document.getElementById('mainMenu').classList.remove('menu-hidden');
-            if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
         }
 
         function initSystem() {
             initStars();
             animateStars();
-            window.addEventListener('click', () => {
-                if(!radioPlaying) {
-                    setupAudioAnalysis();
-                    toggleRadio();
-                }
-            }, { once: true });
         }
 
         const gCanvas = document.getElementById('game-canvas');
@@ -272,29 +269,26 @@
             gCtx.fill();
 
             gCtx.strokeStyle = color;
-            gCtx.lineWidth = 3 * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pulse'));
+            gCtx.lineWidth = 3;
             gCtx.beginPath();
             gCtx.moveTo(0, floor);
             gCtx.lineTo(gCanvas.width, floor);
             gCtx.stroke();
 
-            gCtx.strokeStyle = color;
-            gCtx.lineWidth = 1;
             roadOffset += 15;
-            if(roadOffset > 100) roadOffset = 0;
+            if(roadOffset > 80) roadOffset = 0;
 
             for(let x = -roadOffset; x < gCanvas.width; x += 80) {
                 gCtx.beginPath();
-                gCtx.globalAlpha = 0.3;
+                gCtx.globalAlpha = 0.2;
                 gCtx.moveTo(x, floor);
-                gCtx.lineTo(x - 40, gCanvas.height);
+                gCtx.lineTo(x - 100, gCanvas.height);
                 gCtx.stroke();
                 gCtx.globalAlpha = 1;
             }
         }
 
         function jump() {
-            // SÓ PULA SE ESTIVER NO CHÃO (py == 0)
             if(playing && py === 0) {
                 pv = -22; 
             }
@@ -302,46 +296,39 @@
 
         function gameLoop() {
             if(!playing) return;
-            gCanvas.width = window.innerWidth; 
-            gCanvas.height = window.innerHeight;
             
             let floor = gCanvas.height * 0.75; 
-            let color = getComputedStyle(document.documentElement).getPropertyValue('--p');
+            let color = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
             
             gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
-            
             drawRoad(floor, color);
 
-            pv += 1.1; // Gravidade
+            pv += 1.1; 
             py += pv;
             if(py > 0) { py = 0; pv = 0; }
 
-            // Moto
             gCtx.save();
-            gCtx.font = "80px Arial";
+            gCtx.font = "70px Arial";
             gCtx.shadowBlur = 15;
             gCtx.shadowColor = color;
-            gCtx.translate(120, floor + py - 5); 
+            gCtx.translate(100, floor + py - 5); 
             gCtx.scale(-1, 1);
             gCtx.fillText("🏍️", 0, 0);
             gCtx.restore();
 
-            // Obstáculos
-            if(frame % 70 === 0) obstacles.push({ x: gCanvas.width, type: "🚧" });
+            if(frame % 80 === 0) obstacles.push({ x: gCanvas.width, type: "🚧" });
             
             obstacles.forEach((o, i) => {
                 o.x -= 12;
-                gCtx.font = "80px Arial";
-                gCtx.shadowBlur = 10;
+                gCtx.font = "60px Arial";
                 gCtx.fillText(o.type, o.x, floor - 5);
                 
-                // Colisão
-                if(o.x > 40 && o.x < 130 && py > -60) {
+                if(o.x > 30 && o.x < 110 && py > -50) {
                     playing = false;
                     document.getElementById('boot').style.display = 'flex';
                 }
                 
-                if(o.x < -150) { obstacles.splice(i, 1); score += 100; }
+                if(o.x < -100) { obstacles.splice(i, 1); score += 100; }
             });
 
             document.getElementById('score').innerText = score.toString().padStart(4, '0');
@@ -349,9 +336,23 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Eventos de Toque/Clique corrigidos para chamar a função jump()
-        window.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); }, {passive: false});
-        window.addEventListener('mousedown', jump);
+        // --- CORREÇÃO DOS EVENTOS ---
+        window.addEventListener('touchstart', (e) => { 
+            // Se clicar em qualquer botão ou link, não pula e deixa o clique funcionar
+            if (e.target.closest('.cyber-btn') || e.target.closest('a')) {
+                return; 
+            }
+            if (playing) {
+                e.preventDefault();
+                jump();
+            }
+        }, {passive: false});
+
+        window.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.cyber-btn') || e.target.closest('a')) return;
+            if (playing) jump();
+        });
+
         window.onresize = () => { initStars(); };
     </script>
 </body>
