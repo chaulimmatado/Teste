@@ -152,12 +152,6 @@
             z-index: 20;
         }
 
-        /* --- ESTILO ADICIONAL PARA O PLAYER DE RÁDIO --- */
-        .radio-control {
-            margin-top: 15px;
-            width: 100%;
-        }
-
     </style>
 </head>
 <body onload="initSystem()">
@@ -179,8 +173,10 @@
                 <a href="https://instagram.com/inimigo_do_amigo.ofc" target="_blank" class="cyber-btn"><i class="fab fa-instagram"></i> INSTAGRAM</a>
                 <a href="https://wa.me/5569992919920" target="_blank" class="cyber-btn"><i class="fab fa-whatsapp"></i> WHATSAPP</a>
                 
-                <div id="radioBtn" onclick="toggleRadio()" class="cyber-btn" style="grid-column: span 2;">
-                    <i class="fas fa-broadcast-tower"></i> <span id="radioStatus">ATIVAR_RADIO_CYBERPUNK</span>
+                <a href="https://discord.gg/Hgz4j5XXv" target="_blank" class="cyber-btn" style="grid-column: span 1;"><i class="fab fa-discord"></i> DISCORD</a>
+
+                <div id="radioBtn" onclick="toggleRadio()" class="cyber-btn" style="grid-column: span 1;">
+                    <i class="fas fa-broadcast-tower"></i> <span id="radioStatus">RADIO</span>
                 </div>
             </div>
         </section>
@@ -213,21 +209,21 @@
 
         function toggleRadio() {
             if (!radioPlaying) {
-                radio.play().catch(e => console.log("Erro ao iniciar áudio: Requer interação do usuário."));
-                radioStatus.innerText = "RADIO_ONLINE // DISCONECT";
+                radio.play().catch(e => console.log("Erro ao iniciar áudio."));
+                radioStatus.innerText = "RADIO_ON";
                 radioPlaying = true;
                 document.getElementById('radioBtn').style.borderColor = "var(--s)";
                 document.getElementById('radioBtn').style.color = "var(--s)";
             } else {
                 radio.pause();
-                radioStatus.innerText = "ATIVAR_RADIO_CYBERPUNK";
+                radioStatus.innerText = "RADIO";
                 radioPlaying = false;
                 document.getElementById('radioBtn').style.borderColor = "var(--p)";
                 document.getElementById('radioBtn').style.color = "var(--p)";
             }
         }
 
-        // --- MOTOR DE PARTÍCULAS MAGNÉTICAS ---
+        // --- MOTOR DE PARTÍCULAS ---
         const pCanvas = document.getElementById('particle-canvas');
         const pCtx = pCanvas.getContext('2d');
         let particles = [];
@@ -263,12 +259,10 @@
                 let dy = mouse.y - p.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 if(dist < 150) {
-                    p.x += dx * 0.02;
-                    p.y += dy * 0.02;
+                    p.x += dx * 0.02; p.y += dy * 0.02;
                     pCtx.beginPath(); pCtx.moveTo(p.x, p.y); pCtx.lineTo(mouse.x, mouse.y);
                     pCtx.globalAlpha = 0.2; pCtx.stroke(); pCtx.globalAlpha = 1;
                 }
-
                 pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size, 0, Math.PI*2); pCtx.fill();
             });
             requestAnimationFrame(animateParticles);
@@ -291,7 +285,6 @@
         function startGame() {
             playing = true; score = 0; obstacles = []; py = 0;
             document.getElementById('boot').style.display = 'none';
-            // Tenta iniciar a rádio automaticamente ao começar o jogo se ainda estiver desligada
             if(!radioPlaying) toggleRadio();
             gameLoop();
         }
@@ -308,16 +301,22 @@
             pv += 0.8; py += pv;
             if(py > 0) { py = 0; pv = 0; }
 
-            gCtx.shadowBlur = 20; gCtx.shadowColor = themes[currentTheme];
+            // MOTO CORRIGIDA (Refletida horizontalmente para olhar para a direita)
+            gCtx.save();
+            gCtx.shadowBlur = 20; 
+            gCtx.shadowColor = themes[currentTheme];
             gCtx.font = "40px Arial";
-            gCtx.fillText("🏍️", 50, floor + py);
-            gCtx.shadowBlur = 0;
+            gCtx.translate(50 + 20, floor + py - 20); // Move para o centro da moto
+            gCtx.scale(-1, 1); // Inverte o eixo X para a moto olhar para a direita
+            gCtx.fillText("🏍️", -20, 20); 
+            gCtx.restore();
 
+            // OBSTÁCULOS
             if(frame % 80 === 0) obstacles.push({ x: gCanvas.width });
             obstacles.forEach((o, i) => {
                 o.x -= (8 + score/1000);
                 gCtx.fillText("🚧", o.x, floor);
-                if(o.x > 40 && o.x < 80 && py > -25) {
+                if(o.x > 30 && o.x < 70 && py > -25) {
                     playing = false;
                     document.getElementById('boot').style.display = 'flex';
                     document.getElementById('boot').innerHTML = `<h2 style="color:var(--s)">CRASHED</h2><button onclick="startGame()" class="cyber-btn">REBOOT</button>`;
@@ -331,8 +330,7 @@
 
         window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
         window.addEventListener('touchstart', e => { 
-            mouse.x = e.touches[0].clientX; 
-            mouse.y = e.touches[0].clientY; 
+            mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; 
             gameJump(); 
         });
         window.addEventListener('keydown', e => { if(e.code === 'Space') gameJump(); });
