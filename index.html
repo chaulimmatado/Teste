@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Charlys | Official Profile</title>
+    <meta name="description" content="Piloto de Titan 98 e Gamer. Confira minhas redes e bata meu recorde no mini-game!">
+    <meta property="og:title" content="Charlys | Official">
+    <meta property="og:description" content="Piloto de Titan 98 🏍️ | ETS2 & GTA V">
+    <meta property="og:image" content="20260207_132012[1].jpg">
+    <meta property="og:type" content="website">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root { --primary: #ff4b2b; --secondary: #00d2ff; --neon: #39ff14; --bg: #050505; }
         
@@ -17,217 +25,202 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            padding: 20px 0; 
-            transition: 0.5s; 
+            padding: 20px 0;
         }
 
-        /* Fundo Geométrico */
-        #canvas-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            opacity: 0.4;
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.3; }
+
+        /* Borda RGB Animada */
+        .rainbow-border {
+            position: relative;
+            padding: 3px;
+            border-radius: 32px;
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            background-size: 400%;
+            animation: move-bg 10s linear infinite;
+            width: 90%;
+            max-width: 400px;
         }
 
-        /* Animação de Entrada do Card */
+        @keyframes move-bg { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
+
         .card { 
-            background: rgba(0, 0, 0, 0.8); 
-            backdrop-filter: blur(15px); 
+            background: rgba(10, 10, 10, 0.9); 
+            backdrop-filter: blur(20px); 
             border-radius: 30px; 
             padding: 30px; 
-            width: 90%; 
-            max-width: 400px; 
-            text-align: center; 
-            box-shadow: 0 0 25px var(--primary); 
-            border: 2px solid var(--primary); 
-            transition: 0.3s;
-            animation: slideUp 1s ease-out;
+            text-align: center;
+            box-sizing: border-box;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .profile-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid white; object-fit: cover; cursor: pointer; transition: 0.3s; }
-        .profile-img:hover { transform: rotate(5deg) scale(1.1); }
-        
-        .username { color: var(--secondary); font-size: 14px; display: block; margin-bottom: 10px; font-weight: bold; }
-        .bio { font-size: 14px; color: #ccc; line-height: 1.6; margin: 15px 0; }
-
-        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        /* Hover Glow nos botões */
         .btn { 
             padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; 
             color: white; display: flex; align-items: center; justify-content: center; 
-            gap: 8px; font-size: 14px; transition: 0.3s; position: relative; overflow: hidden;
+            gap: 8px; font-size: 14px; transition: 0.3s;
         }
-        .btn:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .btn:hover { 
+            transform: scale(1.03); 
+            box-shadow: 0 0 15px var(--primary);
+            filter: brightness(1.2);
+        }
         .btn-insta { background: #E1306C; } .btn-whats { background: #25D366; } .btn-yt { background: #ff0000; grid-column: span 2; }
 
-        /* JOGO */
-        #game-area { margin-top: 30px; width: 90%; max-width: 400px; height: 150px; background: rgba(0,0,0,0.9); border: 2px solid #333; border-radius: 20px; position: relative; overflow: hidden; touch-action: none; cursor: pointer; }
-        #player { position: absolute; bottom: 5px; left: 30px; font-size: 35px; transform: scaleX(-1); line-height: 1; }
-        #obstacle { position: absolute; bottom: 5px; right: -50px; font-size: 25px; line-height: 1; }
+        .profile-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid white; object-fit: cover; cursor: pointer; transition: 0.5s; }
+        .profile-img:active { transform: scale(0.9) rotate(-10deg); }
+
+        /* GAME AREA COM SCANLINES CRT */
+        #game-area { 
+            margin-top: 30px; width: 90%; max-width: 400px; height: 150px; 
+            background: #000; border: 2px solid #222; border-radius: 20px; 
+            position: relative; overflow: hidden; touch-action: none;
+        }
+        
+        #game-area::before {
+            content: " ";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
+            z-index: 5; pointer-events: none;
+        }
+
+        /* Animação de Vibração da Moto */
+        @keyframes vibrate {
+            0% { transform: scaleX(-1) translateY(0); }
+            50% { transform: scaleX(-1) translateY(-2px); }
+            100% { transform: scaleX(-1) translateY(0); }
+        }
+        .vibrating { animation: vibrate 0.1s infinite; }
+
+        #player { position: absolute; bottom: 5px; left: 30px; font-size: 35px; transform: scaleX(-1); line-height: 1; z-index: 2; }
+        #obstacle { position: absolute; bottom: 5px; right: -50px; font-size: 25px; line-height: 1; z-index: 2; }
         #road { position: absolute; bottom: 0; width: 200%; height: 2px; background: repeating-linear-gradient(90deg, #444 0, #444 20px, transparent 20px, transparent 40px); }
-        .moving { animation: road-move 0.5s linear infinite; }
-        @keyframes road-move { from { left: 0; } to { left: -40px; } }
-        #game-msg { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; font-weight: bold; color: var(--neon); text-align: center; }
     </style>
 </head>
 <body>
 
 <canvas id="canvas-bg"></canvas>
 
-<div class="card" id="main-card">
-    <img src="20260207_132012[1].jpg" class="profile-img" onclick="changeRGB()" title="Mudar LED">
-    <h1 style="margin: 10px 0 5px;">CHARLYS</h1>
-    <span class="username">@inimigo_do_amigo.ofc</span>
-    
-    <p class="bio">
-        Piloto de <b>Titan 98</b> 🏍️. No PC, domino as estradas no <b>ETS2</b> e toco o terror no <b>GTA V</b>. 
-        Sou animado, parceiro e de boa compreensão. Café na garrafa é lei! ☕
-    </p>
+<div class="rainbow-border">
+    <div class="card" id="main-card">
+        <img src="20260207_132012[1].jpg" class="profile-img" onclick="changeRGB()" title="Mudar Estilo">
+        <h1 style="margin: 10px 0 5px; letter-spacing: 2px;">CHARLYS</h1>
+        <span style="color: var(--secondary); font-size: 13px; font-weight: bold;">@inimigo_do_amigo.ofc</span>
+        
+        <p style="font-size: 14px; color: #ccc; line-height: 1.5; margin: 15px 0;">
+            Piloto de <b>Titan 98</b> 🏍️. Pro no <b>ETS2</b>. <br>
+            Café na garrafa e motor acelerado! ☕
+        </p>
 
-    <div class="links-grid">
-        <a href="https://instagram.com/inimigo_do_amigo.ofc" class="btn btn-insta" target="_blank"><i class="fab fa-instagram"></i> Insta</a>
-        <a href="https://wa.me/5569992919920" class="btn btn-whats" target="_blank"><i class="fab fa-whatsapp"></i> Whats</a>
-        <a href="https://youtu.be/7SGmdnFT3oU" class="btn btn-yt" target="_blank"><i class="fas fa-truck"></i> Ver Gameplays</a>
-    </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <a href="https://instagram.com/inimigo_do_amigo.ofc" class="btn btn-insta" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+            <a href="https://wa.me/5569992919920" class="btn btn-whats" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            <a href="https://youtu.be/7SGmdnFT3oU" class="btn btn-yt" target="_blank"><i class="fas fa-play"></i> Gameplays</a>
+        </div>
 
-    <div style="margin-top: 15px; font-size: 12px; opacity: 0.7;" onclick="addCoffee()">
-        ☕ Café servido: <span id="coffee-count">0</span>
+        <div style="margin-top: 15px; font-size: 11px; opacity: 0.5; cursor: pointer;" onclick="addCoffee()">
+            ☕ CAFÉS CONSUMIDOS: <span id="coffee-count">0</span>
+        </div>
     </div>
 </div>
 
 <div id="game-area" onmousedown="handleAction(event)" ontouchstart="handleAction(event)">
-    <div id="game-msg">TOQUE PARA ACELERAR A TITAN <br> <small style="color:#888">RECORDE: <span id="hi">0</span> KM</small></div>
+    <div id="game-msg" style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: var(--neon); font-weight: bold; text-align: center;">
+        INICIAR CORRIDA <br> <small style="color:#666">RECORDE: <span id="hi">0</span> KM</small>
+    </div>
     <div id="road"></div>
-    <div id="player">🏍️</div>
+    <div id="player" class="vibrating">🏍️</div>
     <div id="obstacle">🚧</div>
-    <div id="score" style="position: absolute; top: 10px; right: 15px; font-weight: bold;">0 KM</div>
+    <div id="score" style="position: absolute; top: 10px; right: 15px; font-weight: bold; z-index: 6;">0 KM</div>
 </div>
 
 <script>
-    // --- Lógica do Fundo de Partículas ---
+    // Partículas do Fundo
     const canvas = document.getElementById('canvas-bg');
     const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    function initCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    let pts = [];
+    function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    class Pt {
+        constructor() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.vx = Math.random()-0.5; this.vy = Math.random()-0.5; }
+        step() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>canvas.width)this.vx*=-1; if(this.y<0||this.y>canvas.height)this.vy*=-1; }
+        draw() { ctx.fillStyle = "#333"; ctx.beginPath(); ctx.arc(this.x,this.y,1.5,0,Math.PI*2); ctx.fill(); }
     }
+    for(let i=0;i<50;i++) pts.push(new Pt());
+    function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); pts.forEach(p=>{p.step();p.draw();}); requestAnimationFrame(anim); }
+    init(); anim(); window.onresize = init;
 
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2 + 1;
-            this.speedX = Math.random() * 1 - 0.5;
-            this.speedY = Math.random() * 1 - 0.5;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            if (this.x > canvas.width) this.x = 0;
-            if (this.x < 0) this.x = canvas.width;
-            if (this.y > canvas.height) this.y = 0;
-            if (this.y < 0) this.y = canvas.height;
-        }
-        draw() {
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary');
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-
-    function createParticles() {
-        for (let i = 0; i < 60; i++) particles.push(new Particle());
-    }
-
-    function animateParticles() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            p.update();
-            p.draw();
-        });
-        requestAnimationFrame(animateParticles);
-    }
-
-    initCanvas(); createParticles(); animateParticles();
-    window.onresize = initCanvas;
-
-    // --- Lógica do Jogo e Funções ---
-    let playing = false, score = 0, jumping = false;
-    let hi = localStorage.getItem('hi') || 0;
-    let coffees = localStorage.getItem('coffees') || 0;
-    
-    document.getElementById('hi').innerText = hi;
-    document.getElementById('coffee-count').innerText = coffees;
-
+    // Lógica do Jogo
+    let playing = false, score = 0, jumping = false, gameSpeed = 8;
     const p = document.getElementById("player"), o = document.getElementById("obstacle"), 
-          r = document.getElementById("road"), m = document.getElementById("game-msg"), 
-          s = document.getElementById("score");
+          r = document.getElementById("road"), m = document.getElementById("game-msg"), s = document.getElementById("score");
 
     function handleAction(e) { e.preventDefault(); if(!playing) start(); else jump(); }
 
     function start() {
-        playing = true; score = 0; s.innerText = "0 KM";
-        m.style.display = "none"; r.classList.add("moving");
-        o.style.right = "-50px"; loop();
+        playing = true; score = 0; gameSpeed = 8;
+        m.style.display = "none"; r.style.animationDuration = "0.5s";
+        r.classList.add("moving"); o.style.right = "-50px";
+        loop();
     }
 
     function jump() {
         if(jumping) return; jumping = true;
         let alt = 5;
         let up = setInterval(() => {
-            if(alt >= 95) { clearInterval(up);
+            if(alt >= 90) { clearInterval(up);
                 let down = setInterval(() => {
-                    if(alt <= 5) { clearInterval(down); jumping = false; alt = 5; }
-                    alt -= 10; p.style.bottom = (alt < 5 ? 5 : alt) + "px";
-                }, 12);
+                    if(alt <= 5) { clearInterval(down); jumping = false; }
+                    alt -= 9; p.style.bottom = Math.max(5, alt) + "px";
+                }, 15);
             }
-            alt += 12; p.style.bottom = alt + "px";
-        }, 12);
+            alt += 11; p.style.bottom = alt + "px";
+        }, 15);
     }
 
     function loop() {
         if(!playing) return;
         let oR = parseInt(window.getComputedStyle(o).right);
         let pB = parseInt(p.style.bottom) || 5;
-        let speed = window.innerWidth < 600 ? 8 : 11;
 
-        if(oR > 420) { o.style.right = "-50px"; score += 10; s.innerText = score + " KM"; } 
-        else { o.style.right = (oR + speed) + "px"; }
+        // Aumenta a velocidade gradualmente
+        gameSpeed = 8 + (score / 100);
+        r.style.animationDuration = (0.5 - (score/2000)) + "s";
 
-        if(oR > 310 && oR < 355 && pB < 45) die();
+        if(oR > 420) { 
+            o.style.right = "-50px"; 
+            score += 10; 
+            s.innerText = score + " KM"; 
+        } else { 
+            o.style.right = (oR + gameSpeed) + "px"; 
+        }
+
+        if(oR > 310 && oR < 350 && pB < 40) die();
         else requestAnimationFrame(loop);
     }
 
     function die() {
         playing = false; r.classList.remove("moving");
-        if(score > hi) { hi = score; localStorage.setItem('hi', hi); }
-        m.innerHTML = `BATEU A TITAN! <br> ${score} KM <br> RECORDE: ${hi} <br> RECOMEÇAR`;
-        m.style.display = "flex"; document.getElementById('hi').innerText = hi;
-        p.style.bottom = "5px"; jumping = false;
-    }
-
-    function changeRGB() {
-        const colors = ['#ff4b2b', '#39ff14', '#00d2ff', '#bc13fe'];
-        let cur = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim().toLowerCase();
-        let next = colors[(colors.indexOf(cur) + 1) % colors.length] || colors[1];
-        document.documentElement.style.setProperty('--primary', next);
-        document.getElementById('main-card').style.boxShadow = `0 0 25px ${next}`;
+        let hi = localStorage.getItem('hi') || 0;
+        if(score > hi) localStorage.setItem('hi', score);
+        m.innerHTML = `PERDEU O EQUILÍBRIO! <br> ${score} KM <br> RECORDE: ${localStorage.getItem('hi')} <br> <small>TOQUE PARA TENTAR DE NOVO</small>`;
+        m.style.display = "flex";
+        p.style.bottom = "5px";
     }
 
     function addCoffee() {
-        coffees++; localStorage.setItem('coffees', coffees);
-        document.getElementById('coffee-count').innerText = coffees;
+        let c = parseInt(localStorage.getItem('coffees') || 0) + 1;
+        localStorage.setItem('coffees', c);
+        document.getElementById('coffee-count').innerText = c;
     }
+    document.getElementById('coffee-count').innerText = localStorage.getItem('coffees') || 0;
+    document.getElementById('hi').innerText = localStorage.getItem('hi') || 0;
 
-    window.onkeydown = (e) => { if(e.code === "Space") { e.preventDefault(); handleAction(e); } };
+    function changeRGB() {
+        const colors = ['#ff4b2b', '#39ff14', '#00d2ff', '#bc13fe'];
+        let next = colors[Math.floor(Math.random() * colors.length)];
+        document.documentElement.style.setProperty('--primary', next);
+    }
 </script>
 </body>
 </html>
