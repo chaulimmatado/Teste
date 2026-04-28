@@ -2,152 +2,264 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ROOT@CHARLYS_SYSTEM:~# [AUDIO_ENABLED]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHARLYS_OS // HUB_CENTRAL</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500;700&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@300;500&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
 
     <style>
-        /* [Mantendo os estilos anteriores e adicionando os de Áudio] */
         :root {
-            --glow-red: #ff003c;
-            --glow-blue: #00e5ff;
-            --terminal-green: #00ff41;
-            --bg-dark: #0a0a0c;
-            --panel-bg: rgba(16, 16, 20, 0.95);
-            --border-color: rgba(0, 229, 255, 0.2);
+            --neon-blue: #00f2ff;
+            --neon-pink: #ff0055;
+            --neon-green: #bcff00;
+            --bg-ultra: #020205;
+            --glass: rgba(10, 10, 15, 0.9);
+            --border: rgba(0, 242, 255, 0.2);
         }
 
+        /* --- BACKGROUND DINÂMICO --- */
         body {
-            background: var(--bg-dark);
-            color: #e0e0e0;
-            font-family: 'Fira Code', monospace;
+            background-color: var(--bg-ultra);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
             height: 100vh;
-            display: flex;
-            padding: 15px;
-            gap: 15px;
             overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background-size: 100% 100%, 100% 4px;
         }
 
-        .dashboard { flex: 1; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(12, 1fr); gap: 15px; }
-        .panel { background: var(--panel-bg); border: 1px solid var(--border-color); position: relative; overflow: hidden; }
-        .panel-header { background: rgba(0, 229, 255, 0.1); padding: 5px 12px; font-size: 10px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); }
-
-        /* Estilo do Player de Música */
-        .mod-music { grid-column: 9 / 13; grid-row: 5 / 9; padding: 20px; display: flex; flex-direction: column; justify-content: center; }
-        .music-controls { display: flex; gap: 15px; margin-top: 15px; }
-        .music-btn { background: transparent; border: 1px solid var(--glow-blue); color: var(--glow-blue); padding: 8px; cursor: pointer; transition: 0.3s; }
-        .music-btn:hover { background: var(--glow-blue); color: #000; }
-        
-        .visualizer { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 10px; }
-        .bar { width: 5px; background: var(--glow-blue); height: 5px; transition: height 0.1s; }
-        .playing .bar { animation: dance 0.5s infinite alternate; }
-
-        @keyframes dance {
-            0% { height: 5px; }
-            100% { height: 35px; }
+        /* --- LAYOUT GRID DE ELITE --- */
+        .desktop {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            grid-template-rows: 60px 1fr 200px;
+            gap: 15px;
+            height: 100vh;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
-        /* [Resto dos estilos do motor de jogo e terminal permanecem iguais] */
-        .mod-engine { grid-column: 1 / 9; grid-row: 1 / 9; background: #000; }
-        #titanCanvas { width: 100%; height: 100%; }
-        .mod-terminal { grid-column: 1 / 9; grid-row: 9 / 13; padding: 15px; font-size: 12px; color: var(--terminal-green); }
-        #term-output { height: 100px; overflow-y: auto; }
-        input { background: transparent; border: none; color: var(--terminal-green); outline: none; width: 100%; }
+        /* --- BARRA DE STATUS SUPERIOR --- */
+        .top-bar {
+            grid-column: span 3;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .system-id { font-family: 'Syncopate'; font-weight: 700; color: var(--neon-blue); font-size: 14px; }
+        .clock { font-family: 'JetBrains Mono'; font-size: 18px; color: var(--neon-green); }
+
+        /* --- PAINEL LATERAL ESQUERDO (PERFIL) --- */
+        .side-left {
+            grid-row: span 2;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-card { text-align: center; }
+        .avatar {
+            width: 120px; height: 120px;
+            border-radius: 20px;
+            border: 2px solid var(--neon-blue);
+            margin-bottom: 10px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+            object-fit: cover;
+        }
+
+        /* --- CENTRAL: O SIMULADOR (JOGO) --- */
+        .main-viewport {
+            background: #000;
+            border: 2px solid var(--neon-pink);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(255, 0, 85, 0.2);
+        }
+
+        /* --- PAINEL LATERAL DIREITO (STATS/MUSIC) --- */
+        .side-right {
+            grid-row: span 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .widget {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 15px;
+            flex: 1;
+        }
+
+        /* --- TERMINAL DE COMANDO INFERIOR --- */
+        .bottom-console {
+            grid-column: 2;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--neon-green);
+            border-radius: 15px;
+            padding: 15px;
+            font-family: 'JetBrains Mono';
+            font-size: 12px;
+            color: var(--neon-green);
+            overflow-y: auto;
+        }
+
+        /* --- BOTÕES CYBER --- */
+        .cyber-btn {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            font-family: 'Rajdhani';
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .cyber-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        /* --- VISUALIZER --- */
+        .vis-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 50px;
+            margin-top: 10px;
+        }
+        .bar { width: 4px; background: var(--neon-pink); height: 5px; }
+
+        @keyframes pulse { 0% { height: 5px; } 100% { height: 40px; } }
+        .playing .bar { animation: pulse 0.5s infinite alternate; }
+
     </style>
 </head>
-<body onload="bootSystem()">
+<body onload="initSystem()">
 
-    <main class="dashboard">
+    <div class="desktop">
         
-        <section class="panel mod-engine">
-            <div class="panel-header"><span>TITAN_CORE_V5</span></div>
-            <canvas id="titanCanvas"></canvas>
-        </section>
+        <header class="top-bar">
+            <div class="system-id">CHARLYS_PROTOCOL // VER 3.0</div>
+            <div class="clock" id="live-clock">00:00:00</div>
+            <div style="color: var(--neon-pink); font-weight: bold;">[ STATUS: OVERCLOCKED ]</div>
+        </header>
 
-        <section class="panel mod-terminal">
-            <div class="panel-header"><span>COMMAND_PROMPT</span></div>
-            <div id="term-output"></div>
-            <div style="display:flex">> <input type="text" id="term-input" placeholder="Type 'play' to start music..."></div>
-        </section>
-
-        <section class="panel mod-music" id="music-panel">
-            <div class="panel-header"><span>NEON_RADIO_FM</span></div>
-            <p style="font-size: 10px; opacity: 0.5;">STREAMING FROM: NIGHTDRIVE.EXE</p>
-            <h4 id="song-title" style="color: var(--glow-blue); margin-top: 5px;">SYNTHWAVE_STATION</h4>
-            
-            <div class="visualizer" id="viz">
-                <div class="bar" style="animation-delay: 0.1s"></div>
-                <div class="bar" style="animation-delay: 0.3s"></div>
-                <div class="bar" style="animation-delay: 0.2s"></div>
-                <div class="bar" style="animation-delay: 0.4s"></div>
-                <div class="bar" style="animation-delay: 0.1s"></div>
-            </div>
-
-            <div class="music-controls">
-                <button class="music-btn" onclick="toggleMusic()"><i class="fas fa-play" id="play-icon"></i></button>
-                <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5" onchange="updateVolume()">
+        <aside class="side-left">
+            <div class="profile-card">
+                <img src="20260207_132012[1].jpg" alt="Charlys" class="avatar">
+                <h2 style="font-family: 'Syncopate'; font-size: 18px;">CHARLYS</h2>
+                <p style="color: var(--neon-blue); font-size: 12px;">SUPREME PILOT</p>
             </div>
             
-            <audio id="bg-audio" loop>
-                <source src="https://stream.nightride.fm/nightride.mp3" type="audio/mpeg">
-            </audio>
-        </section>
+            <nav style="margin-top: 20px;">
+                <button class="cyber-btn" onclick="window.open('https://instagram.com/inimigo_do_amigo.ofc')"><i class="fab fa-instagram"></i> Instagram</button>
+                <button class="cyber-btn" onclick="window.open('https://wa.me/5569992919920')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                <button class="cyber-btn" style="border-color: var(--neon-green); color: var(--neon-green);"> <i class="fas fa-database"></i> Database</button>
+            </nav>
 
-    </main>
+            <div class="widget" style="margin-top: auto; border-color: var(--neon-pink);">
+                <p style="font-size: 10px; color: var(--neon-pink);">DRIVE_INTEGRITY</p>
+                <div style="width: 100%; height: 5px; background: #222; margin-top: 5px;">
+                    <div style="width: 88%; height: 100%; background: var(--neon-pink);"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-viewport">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
+                <h1 style="font-family: 'Syncopate'; color: var(--neon-blue); letter-spacing: 5px;">TITAN DRIVE</h1>
+                <button onclick="log('Iniciando Simulador...')" class="cyber-btn" style="width: 200px; background: rgba(0, 242, 255, 0.1);">BOOT_ENGINE</button>
+            </div>
+            </main>
+
+        <aside class="side-right">
+            <div class="widget">
+                <h3 style="font-size: 14px; color: var(--neon-green);"><i class="fas fa-music"></i> NEON_RADIO</h3>
+                <p style="font-size: 12px; opacity: 0.7;">Now Playing: Synthwave Mix</p>
+                <div class="vis-container" id="visualizer">
+                    <div class="bar" style="animation-delay: 0.1s"></div>
+                    <div class="bar" style="animation-delay: 0.3s"></div>
+                    <div class="bar" style="animation-delay: 0.2s"></div>
+                    <div class="bar" style="animation-delay: 0.4s"></div>
+                    <div class="bar" style="animation-delay: 0.5s"></div>
+                </div>
+                <button class="cyber-btn" onclick="toggleMusic()" style="margin-top: 15px; font-size: 12px;">PLAY/PAUSE</button>
+                <audio id="radio" loop src="https://stream.nightride.fm/nightride.mp3"></audio>
+            </div>
+
+            <div class="widget">
+                <h3 style="font-size: 14px; color: var(--neon-blue);"><i class="fas fa-trophy"></i> ACHIEVEMENTS</h3>
+                <ul style="list-style: none; padding: 0; font-size: 12px; margin-top: 10px;">
+                    <li style="margin-bottom: 8px; opacity: 0.5;"><i class="fas fa-lock"></i> 1000km Club</li>
+                    <li style="margin-bottom: 8px; color: var(--neon-green);"><i class="fas fa-check-circle"></i> Coffee Master</li>
+                    <li style="margin-bottom: 8px; opacity: 0.5;"><i class="fas fa-lock"></i> Night Driver</li>
+                </ul>
+            </div>
+        </aside>
+
+        <footer class="bottom-console" id="console">
+            <div>[ SYSTEM ] CharlysOS inicializado com sucesso.</div>
+            <div>[ INFO ] Verificando integridade dos drivers... OK.</div>
+            <div>[ INFO ] Pronto para o comando do piloto.</div>
+        </aside>
+
+    </div>
 
     <script>
-        const audio = document.getElementById('bg-audio');
-        const playIcon = document.getElementById('play-icon');
-        const viz = document.getElementById('viz');
-        const termInput = document.getElementById('term-input');
-        const termOutput = document.getElementById('term-output');
+        function initSystem() {
+            // Relógio
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').innerText = now.toLocaleTimeString();
+            }, 1000);
 
-        function bootSystem() {
-            logTerminal("Audio Driver: NIGHTRIDE_FM detectado.");
-            logTerminal("Digite 'play' para iniciar a imersão sonora.");
+            log("Aguardando input do usuário...");
         }
 
-        function logTerminal(msg) {
-            const div = document.createElement('div');
-            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            termOutput.appendChild(div);
-            termOutput.scrollTop = termOutput.scrollHeight;
+        function log(msg) {
+            const console = document.getElementById('console');
+            const entry = document.createElement('div');
+            entry.innerText = `[ > ] ${msg}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
         }
 
         function toggleMusic() {
-            if (audio.paused) {
-                audio.play();
-                playIcon.className = "fas fa-pause";
-                viz.classList.add('playing');
-                logTerminal("Uplink de áudio estabelecido. Aproveite a viagem.");
+            const radio = document.getElementById('radio');
+            const vis = document.getElementById('visualizer');
+            if(radio.paused) {
+                radio.play();
+                vis.classList.add('playing');
+                log("Uplink de áudio estabelecido.");
             } else {
-                audio.pause();
-                playIcon.className = "fas fa-play";
-                viz.classList.remove('playing');
-                logTerminal("Áudio suspenso.");
+                radio.pause();
+                vis.classList.remove('playing');
+                log("Áudio suspenso.");
             }
         }
-
-        function updateVolume() {
-            audio.volume = document.getElementById('volume').value;
-        }
-
-        // Comandos de Terminal para Música
-        termInput.addEventListener('keydown', (e) => {
-            if(e.key === 'Enter') {
-                let cmd = termInput.value.toLowerCase();
-                if(cmd === 'play') toggleMusic();
-                if(cmd === 'stop') toggleMusic();
-                if(cmd === 'volume up') { audio.volume = Math.min(1, audio.volume + 0.1); logTerminal("Volume aumentado."); }
-                termInput.value = "";
-            }
-        });
-
-        /* [Aqui entraria o código da animação da moto que já fizemos, 
-           mas agora com a função de mutar o som se bater, se quiser!] */
-
     </script>
 </body>
 </html>
