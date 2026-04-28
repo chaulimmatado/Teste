@@ -3,289 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHARLYS_OS // GOD_MODE_ACTIVE</title>
-    
+    <title>CHARLYS_GOD_MODE // PROT_X</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@300;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@300;800&family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --p: #00f2ff; /* Primary Neon */
-            --s: #ff0055; /* Secondary Pink */
-            --a: #bcff00; /* Accent Green */
-            --bg: #010103;
-            --glass: rgba(5, 5, 10, 0.85);
-            --border: rgba(0, 242, 255, 0.3);
-            --shadow: 0 0 25px rgba(0, 242, 255, 0.2);
-        }
-
+        :root { --p: #00f2ff; --s: #ff0055; --a: #bcff00; --bg: #000; --glass: rgba(0, 0, 0, 0.85); }
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        body { background: var(--bg); color: #fff; font-family: 'JetBrains Mono', monospace; height: 100vh; overflow: hidden; }
         
-        body {
-            background-color: var(--bg);
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            height: 100vh;
-            overflow: hidden;
-            perspective: 1000px;
+        /* CANVAS DE FUNDO - CAMPO VETORIAL */
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+
+        /* OVERLAY DE SCANLINE (EFEITO CRT) */
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 1000;
         }
 
-        /* --- BACKGROUND NEURAL ENGINE --- */
-        #neural-canvas {
-            position: fixed; top: 0; left: 0; z-index: -1;
-            filter: blur(1px);
+        .main-grid {
+            display: grid; grid-template-columns: 320px 1fr 320px; grid-template-rows: 60px 1fr 180px;
+            gap: 15px; height: 100vh; padding: 15px;
         }
 
-        /* --- TASKBAR SUPERIOR --- */
-        .taskbar {
-            height: 50px; background: var(--glass);
-            border-bottom: 2px solid var(--p);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 30px; backdrop-filter: blur(20px);
-            box-shadow: var(--shadow); z-index: 1000;
+        .panel { 
+            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2); 
+            border-radius: 4px; position: relative; overflow: hidden;
+            backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .sys-title { font-family: 'Syncopate'; font-size: 14px; letter-spacing: 3px; color: var(--p); }
+        .header { grid-column: span 3; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--p); }
+        .side-l { grid-row: span 2; display: flex; flex-direction: column; gap: 15px; }
+        .viewport { position: relative; border: 2px solid var(--s); background: #000; }
+        .side-r { grid-row: span 2; display: flex; flex-direction: column; gap: 15px; }
+        .console { grid-column: 2; border-color: var(--a); color: var(--a); padding: 10px; font-size: 11px; overflow-y: auto; }
 
-        /* --- DESKTOP AREA --- */
-        .desktop {
-            position: relative; height: calc(100vh - 50px); width: 100%;
-            padding: 20px; display: flex; gap: 20px;
+        /* AVATAR MORPH */
+        .avatar-box {
+            width: 180px; height: 180px; margin: 20px auto;
+            border: 2px solid var(--p); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: morph 6s infinite alternate; overflow: hidden; box-shadow: 0 0 30px var(--p);
         }
+        @keyframes morph { 0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; } 100% { border-radius: 50% 50% 20% 80% / 80% 20% 80% 20%; } }
 
-        /* --- WINDOW SYSTEM (DRAGGABLE) --- */
-        .window {
-            background: var(--glass); border: 1px solid var(--border);
-            border-radius: 12px; position: absolute;
-            display: flex; flex-direction: column;
-            backdrop-filter: blur(15px); box-shadow: 0 10px 50px rgba(0,0,0,0.8);
-            transition: border-color 0.3s;
+        .btn {
+            background: transparent; border: 1px solid var(--p); color: var(--p);
+            padding: 12px; width: 100%; font-family: 'Orbitron'; font-weight: 900;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-bottom: 10px;
         }
+        .btn:hover { background: var(--p); color: #000; box-shadow: 0 0 20px var(--p); transform: scale(1.02); }
 
-        .window:hover { border-color: var(--p); }
-
-        .win-header {
-            padding: 10px 15px; background: rgba(0, 242, 255, 0.1);
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: move; border-radius: 12px 12px 0 0;
-        }
-
-        .win-title { font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--p); }
-
-        .win-content { padding: 20px; flex: 1; overflow: auto; }
-
-        /* --- MODULES SPECIFIC --- */
-        
-        /* 1. Profile Module */
-        .profile-win { width: 300px; top: 20px; left: 20px; }
-        .avatar-frame {
-            width: 150px; height: 150px; margin: 0 auto 15px;
-            border: 3px solid var(--p); border-radius: 20% 70% 50% 50% / 50% 20% 80% 50%;
-            overflow: hidden; animation: morph 8s infinite ease-in-out;
-            box-shadow: var(--shadow);
-        }
-        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* 2. Main Game Module */
-        .game-win { width: 850px; height: 500px; top: 20px; left: 340px; }
-        #game-viewport {
-            width: 100%; height: 100%; background: #000;
-            border-radius: 8px; position: relative;
-        }
-
-        /* 3. Terminal Module */
-        .term-win { width: 850px; height: 200px; bottom: 20px; left: 340px; }
-        .term-text { font-size: 12px; color: var(--a); }
-
-        /* 4. Music & Stats */
-        .side-win { width: 300px; top: 20px; right: 20px; }
-
-        /* --- BOTÕES CYBERPUNK --- */
-        .btn-glitch {
-            background: transparent; border: 1px solid var(--p);
-            color: var(--p); padding: 12px; width: 100%;
-            font-family: 'Orbitron'; font-size: 12px; font-weight: 900;
-            margin-bottom: 10px; transition: 0.3s; position: relative;
-        }
-
-        .btn-glitch:hover {
-            background: var(--p); color: #000;
-            box-shadow: 0 0 30px var(--p);
-        }
-
-        /* --- ANIMATIONS --- */
-        @keyframes morph {
-            0%, 100% { border-radius: 20% 70% 50% 50% / 50% 20% 80% 50%; }
-            50% { border-radius: 50% 20% 80% 50% / 20% 70% 50% 50%; }
-        }
-
-        /* Hide scrollbars */
-        ::-webkit-scrollbar { display: none; }
+        #titan-game { width: 100%; height: 100%; }
+        .hud-layer { position: absolute; top: 20px; left: 20px; pointer-events: none; }
+        .score-num { font-size: 48px; font-family: 'Orbitron'; color: #fff; text-shadow: 0 0 10px var(--p); }
     </style>
 </head>
-<body onload="initOS()">
+<body onload="init()">
 
-    <canvas id="neural-canvas"></canvas>
+    <canvas id="bg-canvas"></canvas>
 
-    <header class="taskbar">
-        <div class="sys-title">CHARLYS_CORE // ROOT_ACCESS</div>
-        <div id="clock" style="font-family: 'Orbitron'; font-weight: 900; color: var(--a);">00:00:00</div>
-        <div style="font-size: 10px; opacity: 0.6;">CPU: 18% | TEMP: 44°C</div>
-    </header>
+    <div class="main-grid">
+        <header class="panel header">
+            <div style="font-family: 'Syncopate'; color: var(--p);">CHARLYS_V6_CORE</div>
+            <div id="timer" style="font-family: 'Orbitron'; color: var(--a); font-size: 20px;">00:00:00</div>
+            <div style="font-size: 10px;">LATENCY: 12ms | MEM: 4.2GB</div>
+        </header>
 
-    <main class="desktop">
-        
-        <div class="window profile-win" style="z-index: 10;">
-            <div class="win-header"><span class="win-title">ID_SCANNER</span><i class="fas fa-fingerprint"></i></div>
-            <div class="win-content">
-                <div class="avatar-frame"><img src="20260207_132012[1].jpg" class="avatar-img"></div>
-                <h2 style="text-align: center; font-family: 'Orbitron'; font-size: 24px; color: var(--p);">CHARLYS</h2>
-                <p style="text-align: center; font-size: 10px; margin-bottom: 20px; opacity: 0.5;">RANK: LEGENDARY_DRIVER</p>
-                
-                <button class="btn-glitch" onclick="window.open('https://instagram.com/inimigo_do_amigo.ofc')">UPLINK_INSTAGRAM</button>
-                <button class="btn-glitch" onclick="window.open('https://wa.me/5569992919920')">UPLINK_WHATSAPP</button>
-                
-                <div style="margin-top: 20px;">
-                    <p style="font-size: 9px; color: var(--s);">DRIVE_INTEGRITY</p>
-                    <div style="height: 4px; background: #111; margin-top: 5px;"><div style="width: 95%; height: 100%; background: var(--s); box-shadow: 0 0 10px var(--s);"></div></div>
+        <aside class="side-l">
+            <div class="panel" style="flex: 2; padding: 20px; text-align: center;">
+                <div class="avatar-box"><img src="20260207_132012[1].jpg" style="width:100%; height:100%; object-fit:cover;"></div>
+                <h2 style="font-family: 'Orbitron'; letter-spacing: 4px;">CHARLYS</h2>
+                <p style="color: var(--s); font-size: 10px; margin-bottom: 20px;">[ SUPREME_OPERATOR ]</p>
+                <button class="btn" onclick="window.open('https://instagram.com/inimigo_do_amigo.ofc')">INSTAGRAM</button>
+                <button class="btn" onclick="window.open('https://wa.me/5569992919920')">WHATSAPP</button>
+            </div>
+        </aside>
+
+        <main class="panel viewport">
+            <div class="hud-layer">
+                <div style="font-size: 10px; color: var(--p);">SYSTEM_DISTANCE</div>
+                <div id="score" class="score-num">0000</div>
+            </div>
+            <canvas id="titan-game"></canvas>
+            <div id="start-msg" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;">
+                <h1 style="font-family:'Orbitron'; font-size:50px; color:var(--p); margin-bottom:20px;">READY?</h1>
+                <button onclick="startGame()" class="btn" style="width:200px;">ENGAGE</button>
+            </div>
+        </main>
+
+        <aside class="side-r">
+            <div class="panel" style="padding:15px;">
+                <h4 style="color:var(--a); font-size:12px; margin-bottom:10px;">NEON_AUDIO_STREAM</h4>
+                <div id="viz" style="display:flex; gap:3px; height:40px; align-items:flex-end; margin-bottom:15px;"></div>
+                <button class="btn" onclick="toggleMusic()" id="m-btn">PLAY_RADIO</button>
+                <audio id="audio" loop src="https://stream.nightride.fm/nightride.mp3"></audio>
+            </div>
+            <div class="panel" style="flex:1; padding:15px;">
+                <h4 style="color:var(--p); font-size:12px;">ACHIEVEMENTS</h4>
+                <div id="ach-list" style="font-size:11px; margin-top:10px;">
+                    <div style="opacity:0.3; margin-bottom:5px;"><i class="fas fa-lock"></i> SONIC_BOOM (5000m)</div>
+                    <div style="color:var(--a); margin-bottom:5px;"><i class="fas fa-check"></i> ROOT_ACCESS_GRANTED</div>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <div class="window game-win" style="z-index: 5;">
-            <div class="win-header"><span class="win-title">SIMULATOR_V6.0</span><i class="fas fa-expand"></i></div>
-            <div class="win-content" style="padding: 0;">
-                <div id="game-viewport">
-                    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, transparent, #000);">
-                        <h1 style="font-family: 'Orbitron'; font-size: 40px; color: var(--p); letter-spacing: 15px;">TITAN_DRIVE</h1>
-                        <button class="btn-glitch" style="width: 250px; margin-top: 20px;">INITIALIZE_CORE</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="window term-win" style="z-index: 5;">
-            <div class="win-header"><span class="win-title">SYSTEM_LOG</span><i class="fas fa-terminal"></i></div>
-            <div class="win-content term-text" id="log-output">
-                <div>[ OK ] Neural link established...</div>
-                <div>[ OK ] Charlys_OS booting in God Mode...</div>
-                <div>[ OK ] Hardware accelerated visuals active.</div>
-            </div>
-        </div>
-
-        <div class="window side-win" style="z-index: 5;">
-            <div class="win-header"><span class="win-title">NEON_RADIO</span><i class="fas fa-music"></i></div>
-            <div class="win-content">
-                <p style="font-size: 11px; opacity: 0.6;">FREQ: 99.9 NIGHT_FM</p>
-                <div id="visualizer" style="display: flex; gap: 4px; align-items: flex-end; height: 60px; margin: 15px 0;">
-                    </div>
-                <button class="btn-glitch" onclick="toggleRadio()">PLAY_STREAM</button>
-                <audio id="audio-stream" src="https://stream.nightride.fm/nightride.mp3" loop></audio>
-            </div>
-        </div>
-
-    </main>
+        <footer class="panel console" id="log">
+            <div>>> INICIALIZANDO CHARLYS_OS_X...</div>
+            <div>>> KERNEL LOADED AT 0x88234...</div>
+        </footer>
+    </div>
 
     <script>
-        // --- DRAGGABLE WINDOWS ENGINE ---
-        const windows = document.querySelectorAll('.window');
-        windows.forEach(win => {
-            const header = win.querySelector('.win-header');
-            header.onmousedown = (e) => {
-                let shiftX = e.clientX - win.getBoundingClientRect().left;
-                let shiftY = e.clientY - win.getBoundingClientRect().top;
-                win.style.zIndex = 100;
-                
-                function moveAt(pageX, pageY) {
-                    win.style.left = pageX - shiftX + 'px';
-                    win.style.top = pageY - shiftY + 'px';
-                }
-
-                function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
-                document.addEventListener('mousemove', onMouseMove);
-                document.onmouseup = () => {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    win.style.zIndex = 10;
-                };
-            };
-        });
-
-        // --- NEURAL BACKGROUND ENGINE ---
-        const canvas = document.getElementById('neural-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function initNeural() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            particles = [];
-            for(let i=0; i<80; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 1,
-                    vy: (Math.random() - 0.5) * 1
-                });
-            }
+        const log = (m) => { const l = document.getElementById('log'); l.innerHTML += `<div>>> ${m}</div>`; l.scrollTop = l.scrollHeight; };
+        
+        // --- BACKGROUND VECTOR FIELD ---
+        const bg = document.getElementById('bg-canvas');
+        const bctx = bg.getContext('2d');
+        let dots = [];
+        function initBg() {
+            bg.width = window.innerWidth; bg.height = window.innerHeight;
+            dots = [];
+            for(let i=0; i<100; i++) dots.push({x: Math.random()*bg.width, y: Math.random()*bg.height, r: Math.random()*2});
         }
-
-        function drawNeural() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(0, 242, 255, 0.15)';
-            ctx.fillStyle = 'rgba(0, 242, 255, 0.5)';
-            
-            particles.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
-                
-                ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
-
-                for(let j=i+1; j<particles.length; j++) {
-                    let p2 = particles[j];
-                    let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                    if(dist < 150) {
-                        ctx.lineWidth = 1 - dist/150;
-                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-                    }
-                }
+        function drawBg() {
+            bctx.fillStyle = 'rgba(0,0,0,0.1)'; bctx.fillRect(0,0,bg.width,bg.height);
+            bctx.fillStyle = 'rgba(0,242,255,0.3)';
+            dots.forEach(d => {
+                d.y -= 1; if(d.y < 0) d.y = bg.height;
+                bctx.beginPath(); bctx.arc(d.x, d.y, d.r, 0, Math.PI*2); bctx.fill();
             });
-            requestAnimationFrame(drawNeural);
+            requestAnimationFrame(drawBg);
         }
 
-        // --- CORE OS FUNCTIONS ---
-        function initOS() {
-            initNeural(); drawNeural();
-            setInterval(() => {
-                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-            }, 1000);
+        // --- TITAN GAME ENGINE ---
+        const gCanv = document.getElementById('titan-game');
+        const gCtx = gCanv.getContext('2d');
+        let gameActive = false, score = 0, playerY = 0, playerV = 0, obs = [], frame = 0;
 
-            // Criar Visualizer
-            const viz = document.getElementById('visualizer');
-            for(let i=0; i<15; i++) {
-                let b = document.createElement('div');
-                b.style.width = '100%'; b.style.background = 'var(--p)';
-                b.style.height = '10px'; b.style.boxShadow = '0 0 10px var(--p)';
-                viz.appendChild(b);
-            }
+        function startGame() {
+            gameActive = true; score = 0; obs = []; playerY = 0;
+            document.getElementById('start-msg').style.display = 'none';
+            log("SIMULADOR TITAN ATIVADO.");
+            gameLoop();
         }
 
-        function toggleRadio() {
-            const a = document.getElementById('audio-stream');
-            const bars = document.querySelectorAll('#visualizer div');
-            if(a.paused) {
-                a.play();
-                bars.forEach((b, i) => {
-                    b.style.animation = `morph ${0.3 + Math.random()}s infinite alternate`;
-                });
-            } else {
-                a.pause();
-                bars.forEach(b => b.style.animation = 'none');
-            }
+        function gameLoop() {
+            if(!gameActive) return;
+            gCanv.width = gCanv.parentElement.offsetWidth; gCanv.height = gCanv.parentElement.offsetHeight;
+            const floor = gCanv.height - 50;
+            gCtx.clearRect(0,0,gCanv.width, gCanv.height);
+
+            // Gravidade
+            playerV += 0.8; playerY += playerV;
+            if(playerY > 0) { playerY = 0; playerV = 0; }
+
+            // Desenhar Moto
+            gCtx.font = "50px Arial";
+            gCtx.fillText("🏍️", 80, floor + playerY);
+
+            // Obstáculos
+            if(frame % 80 === 0) obs.push({x: gCanv.width, type: "🚧"});
+            obs.forEach((o, i) => {
+                o.x -= 8;
+                gCtx.fillText(o.type, o.x, floor);
+                if(o.x > 80 && o.x < 130 && playerY > -30) gameOver();
+                if(o.x < -50) { obs.splice(i,1); score += 100; }
+            });
+
+            document.getElementById('score').innerText = score.toString().padStart(4, '0');
+            frame++; requestAnimationFrame(gameLoop);
         }
 
-        window.onresize = initNeural;
+        function gameOver() {
+            gameActive = false;
+            document.getElementById('start-msg').style.display = 'block';
+            document.getElementById('start-msg').innerHTML = `<h1 style="color:var(--s)">CRASH!</h1><button onclick="startGame()" class="btn">REBOOT</button>`;
+            log("SISTEMA CORROMPIDO NO IMPACTO.");
+        }
+
+        window.onkeydown = (e) => { if(e.code === 'Space' && playerY === 0) playerV = -18; };
+
+        // --- AUDIO VIZ ---
+        const audio = document.getElementById('audio');
+        const viz = document.getElementById('viz');
+        for(let i=0; i<20; i++) viz.innerHTML += `<div class="v-bar" style="width:5px; background:var(--p); height:5px;"></div>`;
+        
+        function toggleMusic() {
+            if(audio.paused) { 
+                audio.play(); log("STREAM DE ÁUDIO ONLINE."); 
+                document.querySelectorAll('.v-bar').forEach(b => b.style.animation = `morph ${Math.random()+0.2}s infinite`);
+            } else { audio.pause(); }
+        }
+
+        function init() {
+            initBg(); drawBg();
+            setInterval(() => document.getElementById('timer').innerText = new Date().toLocaleTimeString(), 1000);
+            log("CHARLYS_OS_X PRONTO PARA OPERAÇÃO.");
+        }
     </script>
 </body>
 </html>
