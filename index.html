@@ -3,229 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CHARLYS_OS // MULTI-CORE</title>
+    <title>CHARLYS_QUANTUM // GOD_PROTOCOL</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@200;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --p: #00f2ff; --s: #ff0055; --a: #bcff00;
-            --bg: #050508; --glass: rgba(10, 10, 15, 0.9);
+            --p: #00f2ff; --s: #ff0055; --a: #bcff00; --bg: #000;
+            --glass: rgba(0, 0, 0, 0.9); --glow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
         
         body {
-            background-color: var(--bg);
-            color: #fff;
+            background-color: var(--bg); color: #fff;
             font-family: 'JetBrains Mono', monospace;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
         }
 
-        /* --- BACKGROUND DINÂMICO --- */
-        #starfield { position: fixed; top:0; left:0; z-index: -1; }
+        /* --- ENGINE DE FUNDO (USO INTENSIVO DE MEMÓRIA) --- */
+        #render-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-        /* --- HEADER RESPONSIVO --- */
-        .top-nav {
-            height: 60px; background: var(--glass);
-            border-bottom: 1px solid var(--p);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; backdrop-filter: blur(10px);
-            z-index: 100;
-        }
-
-        /* --- LAYOUT GRID FLEXÍVEL --- */
-        .main-container {
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            gap: 15px;
-            padding: 15px;
-            height: calc(100vh - 60px);
-            transition: 0.5s;
+        /* --- OVERLAY DE INTERFACE --- */
+        .master-grid {
+            display: grid; grid-template-columns: 350px 1fr 350px;
+            grid-template-rows: 70px 1fr 220px; gap: 20px;
+            padding: 20px; height: 100vh;
         }
 
         .panel {
-            background: var(--glass);
-            border: 1px solid rgba(0, 242, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.15);
+            border-radius: 4px; backdrop-filter: blur(25px);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- ADAPTAÇÃO PARA CELULAR (BREAKPOINT) --- */
-        @media (max-width: 1100px) {
-            .main-container {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-                overflow-y: auto;
-            }
-            .side-panel { display: none; } /* Esconde laterais no mobile para focar no jogo */
-            .mobile-only { display: block; }
+        .header { grid-column: span 3; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; border-bottom: 2px solid var(--p); }
+        .side-l { grid-row: span 2; }
+        .viewport { grid-column: 2; border: 1px solid var(--s); position: relative; }
+        .side-r { grid-row: span 2; }
+        .console { grid-column: 2; border-color: var(--a); color: var(--a); font-size: 11px; padding: 15px; }
+
+        /* --- TITAN GAME HUD --- */
+        .hud-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; }
+        .stat-box { background: rgba(0,0,0,0.8); border: 1px solid var(--p); padding: 10px 20px; text-align: center; }
+        .stat-val { font-family: 'Orbitron'; font-size: 24px; color: var(--p); }
+
+        /* --- COMPONENTES DE ELITE --- */
+        .avatar-container {
+            width: 200px; height: 200px; margin: 30px auto;
+            border: 2px solid var(--p); position: relative;
+            animation: rotate 20s linear infinite;
         }
-
-        /* --- GAME VIEWPORT ADAPTATIVO --- */
-        .viewport {
-            background: #000;
-            border: 1px solid var(--s);
-            position: relative;
-            min-height: 300px;
+        .avatar-img {
+            width: 100%; height: 100%; object-fit: cover;
+            animation: rotate-reverse 20s linear infinite;
         }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes rotate-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
-        canvas { width: 100%; height: 100%; display: block; }
-
-        /* --- CONTROLES TOUCH (SÓ APARECEM NO MOBILE) --- */
-        .touch-controls {
-            display: none;
-            position: absolute; bottom: 20px; width: 100%;
-            padding: 0 30px; justify-content: center;
-        }
-        @media (max-width: 1100px) { .touch-controls { display: flex; } }
-
-        .jump-btn {
-            width: 80px; height: 80px; background: rgba(255, 0, 85, 0.3);
-            border: 2px solid var(--s); border-radius: 50%;
-            color: white; font-size: 24px; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* --- BOTÕES CYBER --- */
-        .btn {
+        .btn-cyber {
             background: transparent; border: 1px solid var(--p); color: var(--p);
-            padding: 12px; font-family: 'Orbitron'; cursor: pointer;
-            text-decoration: none; text-align: center; margin: 5px;
-            font-size: 12px; transition: 0.3s;
+            padding: 15px; font-family: 'Syncopate'; font-size: 11px;
+            text-transform: uppercase; cursor: pointer; transition: 0.4s;
+            margin: 10px 0; position: relative; overflow: hidden;
         }
-        .btn:active { background: var(--p); color: #000; }
+        .btn-cyber:hover { background: var(--p); color: #000; box-shadow: var(--glow); letter-spacing: 2px; }
 
-        /* --- ANIMATIONS --- */
-        .glow { animation: pulse 2s infinite alternate; }
-        @keyframes pulse { from { box-shadow: 0 0 5px var(--p); } to { box-shadow: 0 0 20px var(--p); } }
+        /* --- RESPONSIVIDADE MULTIPLATAFORMA --- */
+        @media (max-width: 1200px) {
+            .master-grid { grid-template-columns: 1fr; grid-template-rows: auto; overflow-y: auto; }
+            .side-panel { display: none; }
+            .viewport { height: 400px; }
+            .console { height: 200px; }
+        }
+
+        /* --- AUDIO VIZ RADIAL --- */
+        .viz-radial { width: 100px; height: 100px; border-radius: 50%; border: 2px dashed var(--a); margin: 20px auto; display: flex; align-items: center; justify-content: center; animation: pulse 1s infinite alternate; }
     </style>
 </head>
-<body onload="init()">
+<body onload="initAll()">
 
-    <canvas id="starfield"></canvas>
+    <canvas id="render-canvas"></canvas>
 
-    <header class="top-nav">
-        <div style="font-family: 'Orbitron'; color: var(--p); font-weight: 900; font-size: 14px;">CHARLYS_HYBRID_OS</div>
-        <div id="clock" style="color: var(--a);">00:00:00</div>
-    </header>
+    <div class="master-grid">
+        <header class="panel header">
+            <div style="font-family: 'Syncopate'; letter-spacing: 5px;">CHARLYS_OS_QUANTUM</div>
+            <div id="live-timer" style="font-family: 'Orbitron'; font-size: 22px; color: var(--a);">00:00:00</div>
+            <div style="font-size: 10px; text-align: right;">RAM_USAGE: <span id="ram-val">LOW</span><br>SYSTEM: OVERDRIVE</div>
+        </header>
 
-    <main class="main-container">
-        
-        <aside class="panel side-panel">
+        <aside class="panel side-l side-panel">
+            <div class="avatar-container">
+                <img src="20260207_132012[1].jpg" class="avatar-img">
+            </div>
             <div style="padding: 20px; text-align: center;">
-                <img src="20260207_132012[1].jpg" style="width: 120px; border-radius: 50%; border: 2px solid var(--p); margin-bottom: 15px;">
-                <h3 style="font-family: 'Orbitron';">CHARLYS</h3>
-                <p style="font-size: 10px; color: var(--s);">MODO: MULTIPLATAFORMA</p>
-                <div style="margin-top: 20px; display: flex; flex-direction: column;">
-                    <a href="https://instagram.com/inimigo_do_amigo.ofc" class="btn">INSTAGRAM</a>
-                    <a href="https://wa.me/5569992919920" class="btn">WHATSAPP</a>
+                <h2 style="font-family: 'Syncopate'; font-size: 18px;">CHARLYS</h2>
+                <p style="color: var(--s); font-size: 10px; margin-bottom: 30px;">[ SUPREME_OPERATOR_V7 ]</p>
+                <div style="display: flex; flex-direction: column;">
+                    <button class="btn-cyber" onclick="window.open('https://instagram.com/inimigo_do_amigo.ofc')">ACCESS_INSTAGRAM</button>
+                    <button class="btn-cyber" onclick="window.open('https://wa.me/5569992919920')">UPLINK_WHATSAPP</button>
+                    <button class="btn-cyber" style="border-color: var(--a); color: var(--a);">DATA_ENCRYPTION</button>
                 </div>
             </div>
         </aside>
 
-        <section class="panel viewport glow">
-            <canvas id="game"></canvas>
-            <div id="ui-overlay" style="position: absolute; top: 20px; left: 20px;">
-                <div id="score" style="font-family: 'Orbitron'; font-size: 30px;">0000</div>
+        <main class="panel viewport">
+            <div class="hud-top">
+                <div class="stat-box"><div>DISTANCE</div><div id="scr" class="stat-val">0000</div></div>
+                <div class="stat-box"><div>VELOCITY</div><div id="vel" class="stat-val">0km/h</div></div>
             </div>
-            
-            <div class="touch-controls">
-                <div class="jump-btn" onclick="jump()"><i class="fas fa-arrow-up"></i></div>
+            <canvas id="titan-core"></canvas>
+            <div id="overlay-msg" style="position: absolute; inset:0; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <h1 style="font-family:'Orbitron'; font-size:60px; color:var(--p); margin-bottom:20px;">ENGAGE?</h1>
+                <button onclick="bootGame()" class="btn-cyber" style="width:250px;">INITIALIZE_TITAN</button>
             </div>
+        </main>
 
-            <div id="boot-screen" style="position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <h1 style="font-family: 'Orbitron'; color: var(--p); margin-bottom: 20px;">SYSTEM READY</h1>
-                <button onclick="start()" class="btn" style="width: 200px;">START_SIMULATION</button>
-            </div>
-        </section>
-
-        <aside class="panel side-panel">
-            <div style="padding: 20px;">
-                <h4 style="font-size: 12px; color: var(--a);">ENGINE_STATS</h4>
-                <div id="stats" style="font-size: 10px; margin-top: 10px; line-height: 2;">
-                    - RESOLUTION: AUTO_DETECT<br>
-                    - PLATFORM: <span id="platform-id">DEVICE</span><br>
-                    - KERNEL: V6.0_HYBRID
+        <aside class="panel side-r side-panel">
+            <div style="padding: 20px; height: 100%; display: flex; flex-direction: column;">
+                <h4 style="color: var(--a); font-size: 12px; margin-bottom: 20px;">NEURAL_AUDIO</h4>
+                <div class="viz-radial"><i class="fas fa-satellite-dish" style="color: var(--a);"></i></div>
+                <button class="btn-cyber" onclick="toggleAudio()" id="abtn">PLAY_STREAM</button>
+                <audio id="stream" loop src="https://stream.nightride.fm/nightride.mp3"></audio>
+                
+                <div style="margin-top: auto;">
+                    <h4 style="font-size: 12px; color: var(--p);">SYSTEM_INTEGRITY</h4>
+                    <div style="height: 5px; background: #111; margin: 10px 0;"><div style="width: 98%; height: 100%; background: var(--p); box-shadow: var(--glow);"></div></div>
+                    <p style="font-size: 10px; opacity: 0.5;">FIRMWARE: QUANTUM_7.0.1</p>
                 </div>
-                <hr style="margin: 15px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.1);">
-                <button class="btn" onclick="toggleAudio()">RADIO: ON/OFF</button>
-                <audio id="bg-audio" loop src="https://stream.nightride.fm/nightride.mp3"></audio>
             </div>
         </aside>
 
-    </main>
+        <footer class="panel console" id="logger">
+            <div>[ SYSTEM ] Carregando núcleos de processamento...</div>
+            <div>[ OK ] Memória RAM detectada: CAPACIDADE_MÁXIMA.</div>
+            <div>[ OK ] Charlys_OS operando em Modo Deus.</div>
+        </footer>
+    </div>
 
     <script>
-        const canvas = document.getElementById('game');
-        const ctx = canvas.getContext('2d');
-        let gameActive = false, score = 0, y = 0, vy = 0, obs = [], frame = 0;
+        // --- LOG ENGINE ---
+        const writeLog = (m) => {
+            const l = document.getElementById('logger');
+            const d = document.createElement('div');
+            d.innerHTML = `[ ${new Date().toLocaleTimeString()} ] >> ${m}`;
+            l.appendChild(d); l.scrollTop = l.scrollHeight;
+        };
 
-        function init() {
-            // Relógio
-            setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
-            document.getElementById('platform-id').innerText = /Mobi|Android/i.test(navigator.userAgent) ? "MOBILE" : "DESKTOP";
-            
-            // Estrelas de fundo
-            const sCanvas = document.getElementById('starfield');
-            const sCtx = sCanvas.getContext('2d');
-            sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight;
-            function drawStars() {
-                sCtx.fillStyle = 'black'; sCtx.fillRect(0,0,sCanvas.width, sCanvas.height);
-                sCtx.fillStyle = 'white';
-                for(let i=0; i<100; i++) sCtx.fillRect(Math.random()*sCanvas.width, Math.random()*sCanvas.height, 1, 1);
-                requestAnimationFrame(drawStars);
-            }
-            drawStars();
+        // --- RENDER ENGINE (Fundo de Partículas) ---
+        const rCanvas = document.getElementById('render-canvas');
+        const rctx = rCanvas.getContext('2d');
+        let pts = [];
+        function initRender() {
+            rCanvas.width = window.innerWidth; rCanvas.height = window.innerHeight;
+            pts = [];
+            for(let i=0; i<150; i++) pts.push({ x: Math.random()*rCanvas.width, y: Math.random()*rCanvas.height, s: Math.random()*2, v: Math.random()*2 + 1 });
+        }
+        function drawRender() {
+            rctx.fillStyle = 'rgba(0,0,0,0.15)'; rctx.fillRect(0,0,rCanvas.width, rCanvas.height);
+            rctx.fillStyle = 'rgba(0, 242, 255, 0.4)';
+            pts.forEach(p => {
+                p.y -= p.v; if(p.y < 0) p.y = rCanvas.height;
+                rctx.beginPath(); rctx.arc(p.x, p.y, p.s, 0, Math.PI*2); rctx.fill();
+            });
+            requestAnimationFrame(drawRender);
         }
 
-        function start() {
-            gameActive = true; score = 0; obs = [];
-            document.getElementById('boot-screen').style.display = 'none';
-            loop();
+        // --- TITAN CORE ENGINE (JOGO) ---
+        const tCanvas = document.getElementById('titan-core');
+        const tctx = tCanvas.getContext('2d');
+        let active = false, score = 0, py = 0, pv = 0, obs = [], frame = 0;
+
+        function bootGame() {
+            active = true; score = 0; obs = []; py = 0;
+            document.getElementById('overlay-msg').style.display = 'none';
+            writeLog("Motor Titan v7 inicializado. Consumo de RAM otimizado.");
+            gameLoop();
         }
 
-        function jump() { if(y === 0) vy = -15; }
+        function gameLoop() {
+            if(!active) return;
+            tCanvas.width = tCanvas.parentElement.offsetWidth; tCanvas.height = tCanvas.parentElement.offsetHeight;
+            const ground = tCanvas.height - 60;
+            tctx.clearRect(0,0,tCanvas.width, tCanvas.height);
 
-        function loop() {
-            if(!gameActive) return;
-            canvas.width = canvas.parentElement.offsetWidth;
-            canvas.height = canvas.parentElement.offsetHeight;
-            const ground = canvas.height - 40;
-            ctx.clearRect(0,0,canvas.width, canvas.height);
+            // Física e Salto
+            pv += 0.9; py += pv;
+            if(py > 0) { py = 0; pv = 0; }
 
-            // Física
-            vy += 0.8; y += vy;
-            if(y > 0) { y = 0; vy = 0; }
+            // Desenhar Moto
+            tctx.shadowBlur = 15; tctx.shadowColor = varColor('--p');
+            tctx.font = "50px Arial";
+            tctx.fillText("🏍️", 100, ground + py);
+            tctx.shadowBlur = 0;
 
-            // Desenhar Moto (Adaptativo)
-            ctx.font = canvas.width < 500 ? "30px Arial" : "50px Arial";
-            ctx.fillText("🏍️", 50, ground + y);
-
-            // Obstáculos
-            if(frame % 100 === 0) obs.push({x: canvas.width, t: "🚧"});
+            // Obstáculos e Dificuldade
+            if(frame % 70 === 0) obs.push({ x: tCanvas.width, t: "🚧" });
             obs.forEach((o, i) => {
-                o.x -= 7;
-                ctx.fillText(o.t, o.x, ground);
-                if(o.x > 50 && o.x < 90 && y > -20) { gameActive = false; document.getElementById('boot-screen').style.display = 'flex'; }
-                if(o.x < -50) { obs.splice(i, 1); score += 10; }
+                o.x -= (10 + score/1000); // Velocidade aumenta com o score
+                tctx.fillText(o.t, o.x, ground);
+                if(o.x > 100 && o.x < 150 && py > -35) crash();
+                if(o.x < -50) { obs.splice(i, 1); score += 150; }
             });
 
-            document.getElementById('score').innerText = score.toString().padStart(4, '0');
-            frame++; requestAnimationFrame(loop);
+            document.getElementById('scr').innerText = score.toString().padStart(4, '0');
+            document.getElementById('vel').innerText = Math.floor(120 + score/10) + "km/h";
+            frame++; requestAnimationFrame(gameLoop);
         }
 
+        function crash() {
+            active = false;
+            document.getElementById('overlay-msg').style.display = 'flex';
+            document.getElementById('overlay-msg').innerHTML = `<h1 style="color:var(--s); font-family:'Orbitron';">CORE_CRASH</h1><button onclick="bootGame()" class="btn-cyber">REBOOT_SYSTEM</button>`;
+            writeLog("Colisão detectada. Reiniciando módulos críticos.");
+        }
+
+        // --- SISTEMA ---
         function toggleAudio() {
-            const a = document.getElementById('bg-audio');
-            a.paused ? a.play() : a.pause();
+            const a = document.getElementById('stream');
+            if(a.paused) { a.play(); writeLog("Uplink de áudio ativado."); } else { a.pause(); }
         }
 
-        window.onkeydown = (e) => { if(e.code === 'Space') jump(); };
+        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+        function initAll() {
+            initRender(); drawRender();
+            setInterval(() => {
+                document.getElementById('live-timer').innerText = new Date().toLocaleTimeString();
+                document.getElementById('ram-val').innerText = (Math.random()*10 + 2).toFixed(1) + "GB";
+            }, 1000);
+            writeLog("CharlysOS X_QUANTUM pronto para comando.");
+        }
+
+        window.onkeydown = (e) => { if(e.code === 'Space' && py === 0) pv = -20; };
+        window.onclick = () => { if(active && py === 0) pv = -20; }; // Suporte Touch
     </script>
 </body>
 </html>
