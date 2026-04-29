@@ -14,6 +14,17 @@
             --s: #ff0055;
             --bg: #030305;
             --glow: 0 0 25px var(--p);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- BARRA DE ROLAGEM PERSONALIZADA --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--p); 
+            border-radius: 10px; 
+            box-shadow: 0 0 10px var(--p);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -23,25 +34,34 @@
             color: #fff;
             font-family: 'JetBrains Mono', monospace;
             height: 100vh;
-            overflow: hidden;
-            touch-action: none;
+            overflow-x: hidden;
+            overflow-y: auto; /* Permitir scroll se o conteúdo crescer */
         }
 
         #particle-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
+        /* --- ANIMAÇÃO DE ENTRADA --- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .wrapper {
-            display: flex; flex-direction: column; height: 100vh;
-            padding: 15px; gap: 15px; max-width: 1200px; margin: 0 auto;
+            display: flex; flex-direction: column; min-height: 100vh;
+            padding: 25px 15px; gap: 15px; max-width: 1200px; margin: 0 auto;
             transition: transform 0.5s ease;
+            animation: fadeUp 0.8s ease-out; /* Anima o site todo ao abrir */
         }
 
         .menu-hidden { transform: translateY(-120%); pointer-events: none; }
 
         header {
-            background: rgba(0,0,0,0.8);
-            border: 1px solid var(--p);
-            padding: 15px; text-align: center;
-            box-shadow: var(--glow); border-radius: 4px;
+            background: var(--glass);
+            backdrop-filter: blur(10px); /* EFEITO VIDRO */
+            border: 1px solid var(--glass-border);
+            padding: 20px; text-align: center;
+            box-shadow: var(--glow); border-radius: 12px;
+            border-bottom: 2px solid var(--p);
         }
 
         .profile-area { display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -52,26 +72,49 @@
             border: 4px solid var(--p);
             padding: 5px; cursor: pointer;
             box-shadow: var(--glow);
-            transition: border-color 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--bg);
         }
+
+        .photo-frame:hover { transform: scale(1.1) rotate(5deg); border-color: var(--s); }
 
         .photo-frame img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
         .links-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            width: 100%; margin-top: 20px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            width: 100%; margin-top: 30px;
         }
 
+        /* --- BOTÕES TURBINADOS --- */
         .cyber-btn {
-            background: rgba(0,0,0,0.7); border: 1px solid var(--p);
-            color: var(--p); padding: 15px; font-family: 'Orbitron';
+            background: var(--glass);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--p);
+            color: #fff; padding: 18px; font-family: 'Orbitron';
             text-decoration: none; text-align: center; font-size: 11px;
-            cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
             touch-action: manipulation;
+            border-radius: 8px;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .cyber-btn:hover { background: var(--p); color: #000; box-shadow: 0 0 30px var(--p); }
+        .cyber-btn:hover { 
+            background: var(--p); 
+            color: #000; 
+            box-shadow: 0 0 40px var(--p);
+            transform: translateY(-3px);
+        }
+
+        .cyber-btn i { font-size: 16px; }
+
+        /* Delay nas animações dos botões */
+        .cyber-btn:nth-child(1) { animation: fadeUp 0.5s ease backwards 0.2s; }
+        .cyber-btn:nth-child(2) { animation: fadeUp 0.5s ease backwards 0.3s; }
+        .cyber-btn:nth-child(3) { animation: fadeUp 0.5s ease backwards 0.4s; }
+        .cyber-btn:nth-child(4) { animation: fadeUp 0.5s ease backwards 0.5s; }
 
         .game-viewport { position: fixed; inset: 0; background: #000; z-index: 100; display: none; }
         #game-canvas { width: 100%; height: 100%; display: block; }
@@ -85,8 +128,17 @@
         .exit-btn { position: absolute; bottom: 20px; right: 20px; z-index: 120; font-size: 10px; pointer-events: auto; }
 
         .overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            position: absolute; inset: 0; background: rgba(0,0,0,0.95);
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 130;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 10px;
+            opacity: 0.5;
+            padding: 20px;
+            letter-spacing: 2px;
         }
 
         @media (max-width: 768px) { .links-grid { grid-template-columns: 1fr; } }
@@ -98,14 +150,15 @@
 
     <div class="wrapper" id="mainMenu">
         <header>
-            <h1 style="font-family: 'Orbitron'; font-size: 14px; letter-spacing: 5px; color: var(--p);">TITAN_WARP_SPEED // V17</h1>
+            <h1 style="font-family: 'Orbitron'; font-size: 14px; letter-spacing: 5px; color: var(--p); text-shadow: var(--glow);">TITAN_WARP_SPEED // V17</h1>
         </header>
 
         <section class="profile-area">
             <div class="photo-frame" onclick="changeTheme()" id="mainPhoto">
                 <img src="20260207_132012[1].jpg" alt="Charlys">
             </div>
-            <h2 style="font-family: 'Orbitron'; margin-top: 15px; letter-spacing: 2px;">CHARLYS</h2>
+            <h2 style="font-family: 'Orbitron'; margin-top: 20px; letter-spacing: 4px; color: #fff;">CHARLYS</h2>
+            <p style="font-size: 9px; color: var(--p); margin-bottom: 10px; opacity: 0.8;">[ SYSTEM_ACTIVE ]</p>
             
             <div class="links-grid">
                 <a href="https://instagram.com/inimigo_do_amigo.ofc" target="_blank" class="cyber-btn"><i class="fab fa-instagram"></i> INSTAGRAM</a>
@@ -116,10 +169,14 @@
                 </div>
             </div>
 
-            <button onclick="enterGameMode()" class="cyber-btn" style="width: 100%; margin-top: 20px; border-width: 2px; font-weight: 900;">
+            <button onclick="enterGameMode()" class="cyber-btn" style="width: 100%; margin-top: 25px; border-width: 2px; font-weight: 900; animation: fadeUp 0.5s ease backwards 0.6s;">
                 <i class="fas fa-rocket"></i> VIAJAR_NA_VELOCIDADE_DO_SOM
             </button>
         </section>
+
+        <footer>
+            DESIGNED BY CHARLYS // © 2024
+        </footer>
     </div>
 
     <div class="game-viewport" id="gameScreen">
@@ -140,6 +197,7 @@
     </audio>
 
     <script>
+        // MANTIVE TODA A TUA LÓGICA ORIGINAL POIS ELA ESTÁ EXCELENTE!
         const radio = document.getElementById('cyberRadio');
         const radioStatus = document.getElementById('radioStatus');
         let radioPlaying = false;
@@ -168,7 +226,6 @@
             }
         }
 
-        // --- SISTEMA DE PARTÍCULAS (MENU) ---
         const pCanvas = document.getElementById('particle-canvas');
         const pCtx = pCanvas.getContext('2d');
         let stars = [];
@@ -203,7 +260,6 @@
             requestAnimationFrame(animateStars);
         }
 
-        // --- TEMAS ---
         const themes = ['#00f2ff', '#ff0055', '#bcff00', '#ffaa00', '#a200ff'];
         let currentTheme = 0;
         function changeTheme() {
@@ -211,7 +267,6 @@
             document.documentElement.style.setProperty('--p', themes[currentTheme]);
         }
 
-        // --- JOGO ---
         const gCanvas = document.getElementById('game-canvas');
         const gCtx = gCanvas.getContext('2d');
         let playing = false, score = 0, py = 0, pv = 0, obstacles = [], frame = 0, roadOffset = 0, gameId;
@@ -237,12 +292,7 @@
         }
 
         function startGame() {
-            playing = true; 
-            score = 0; 
-            obstacles = []; 
-            py = 0; 
-            pv = 0; 
-            frame = 0;
+            playing = true; score = 0; obstacles = []; py = 0; pv = 0; frame = 0;
             document.getElementById('boot').style.display = 'none';
             gameLoop();
         }
@@ -250,14 +300,12 @@
         function drawRoad(floor, color) {
             gCtx.fillStyle = "rgba(20, 20, 25, 0.9)";
             gCtx.fillRect(0, floor, gCanvas.width, gCanvas.height - floor);
-
             gCtx.strokeStyle = color;
             gCtx.lineWidth = 4;
             gCtx.beginPath();
             gCtx.moveTo(0, floor);
             gCtx.lineTo(gCanvas.width, floor);
             gCtx.stroke();
-
             roadOffset = (roadOffset + 14) % 80;
             gCtx.lineWidth = 1;
             gCtx.globalAlpha = 0.2;
@@ -270,25 +318,16 @@
             gCtx.globalAlpha = 1;
         }
 
-        function jump() {
-            if(playing && py === 0) pv = -22; 
-        }
+        function jump() { if(playing && py === 0) pv = -22; }
 
         function gameLoop() {
             if(!playing) return;
-            
             let floor = gCanvas.height * 0.75; 
             let color = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
-            
             gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
             drawRoad(floor, color);
-
-            // Física
-            pv += 1.1; 
-            py += pv;
+            pv += 1.1; py += pv;
             if(py > 0) { py = 0; pv = 0; }
-
-            // Moto
             gCtx.save();
             gCtx.font = "70px Arial";
             gCtx.shadowBlur = 15;
@@ -297,31 +336,22 @@
             gCtx.scale(-1, 1);
             gCtx.fillText("🏍️", 0, 0);
             gCtx.restore();
-
-            // Obstáculos
             if(frame % 85 === 0) obstacles.push({ x: gCanvas.width, type: "🚧" });
-            
             obstacles.forEach((o, i) => {
                 o.x -= 13;
                 gCtx.font = "60px Arial";
                 gCtx.fillText(o.type, o.x, floor - 10);
-                
-                // HITBOX REFINADA (A moto está no X=100)
-                // Se o obstáculo entrar na frente da moto (60 a 110) e ela não estiver alta o suficiente (-45)
                 if(o.x > 60 && o.x < 110 && py > -45) {
                     playing = false;
                     document.getElementById('boot').style.display = 'flex';
                 }
-                
                 if(o.x < -100) { obstacles.splice(i, 1); score += 100; }
             });
-
             document.getElementById('score').innerText = score.toString().padStart(4, '0');
             frame++; 
             gameId = requestAnimationFrame(gameLoop);
         }
 
-        // EVENTOS
         window.addEventListener('touchstart', (e) => { 
             if (e.target.closest('.cyber-btn') || e.target.closest('a')) return; 
             if (playing) { e.preventDefault(); jump(); }
@@ -333,11 +363,7 @@
         });
 
         window.onresize = () => { initStars(); resizeGameCanvas(); };
-
-        function initSystem() {
-            initStars();
-            animateStars();
-        }
+        function initSystem() { initStars(); animateStars(); }
     </script>
 </body>
 </html>
