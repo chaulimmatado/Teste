@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TITAN_WARP_SPEED_V16</title>
+    <title>TITAN_WARP_SPEED_V17</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
@@ -74,7 +74,7 @@
         .cyber-btn:hover { background: var(--p); color: #000; box-shadow: 0 0 30px var(--p); }
 
         .game-viewport { position: fixed; inset: 0; background: #000; z-index: 100; display: none; }
-        #game-canvas { width: 100%; height: 100%; }
+        #game-canvas { width: 100%; height: 100%; display: block; }
 
         .game-ui {
             position: absolute; top: 20px; width: 100%; padding: 0 30px;
@@ -98,7 +98,7 @@
 
     <div class="wrapper" id="mainMenu">
         <header>
-            <h1 style="font-family: 'Orbitron'; font-size: 14px; letter-spacing: 5px; color: var(--p);">TITAN_WARP_SPEED // V16</h1>
+            <h1 style="font-family: 'Orbitron'; font-size: 14px; letter-spacing: 5px; color: var(--p);">TITAN_WARP_SPEED // V17</h1>
         </header>
 
         <section class="profile-area">
@@ -125,7 +125,7 @@
     <div class="game-viewport" id="gameScreen">
         <div class="game-ui">
             <div style="color: var(--p);">SCORE: <span id="score">0000</span></div>
-            <div style="color: var(--s);">FPS: <span id="fps">120</span></div>
+            <div style="color: var(--s);">FPS: 120</div>
         </div>
         <canvas id="game-canvas"></canvas>
         <button onclick="exitGameMode()" class="cyber-btn exit-btn">SAIR</button>
@@ -168,6 +168,7 @@
             }
         }
 
+        // --- SISTEMA DE PARTÍCULAS (MENU) ---
         const pCanvas = document.getElementById('particle-canvas');
         const pCtx = pCanvas.getContext('2d');
         let stars = [];
@@ -202,6 +203,7 @@
             requestAnimationFrame(animateStars);
         }
 
+        // --- TEMAS ---
         const themes = ['#00f2ff', '#ff0055', '#bcff00', '#ffaa00', '#a200ff'];
         let currentTheme = 0;
         function changeTheme() {
@@ -209,72 +211,67 @@
             document.documentElement.style.setProperty('--p', themes[currentTheme]);
         }
 
+        // --- JOGO ---
+        const gCanvas = document.getElementById('game-canvas');
+        const gCtx = gCanvas.getContext('2d');
+        let playing = false, score = 0, py = 0, pv = 0, obstacles = [], frame = 0, roadOffset = 0, gameId;
+
         function enterGameMode() {
-            const screen = document.getElementById('gameScreen');
-            const menu = document.getElementById('mainMenu');
-            screen.style.display = 'block';
-            menu.classList.add('menu-hidden');
-            setTimeout(() => {
-                gCanvas.width = window.innerWidth;
-                gCanvas.height = window.innerHeight;
-            }, 100);
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('mainMenu').classList.add('menu-hidden');
+            document.getElementById('boot').style.display = 'flex';
+            resizeGameCanvas();
         }
 
         function exitGameMode() {
             playing = false;
+            cancelAnimationFrame(gameId);
+            obstacles = [];
             document.getElementById('gameScreen').style.display = 'none';
             document.getElementById('mainMenu').classList.remove('menu-hidden');
         }
 
-        function initSystem() {
-            initStars();
-            animateStars();
+        function resizeGameCanvas() {
+            gCanvas.width = window.innerWidth;
+            gCanvas.height = window.innerHeight;
         }
 
-        const gCanvas = document.getElementById('game-canvas');
-        const gCtx = gCanvas.getContext('2d');
-        let playing = false, score = 0, py = 0, pv = 0, obstacles = [], frame = 0;
-        let roadOffset = 0;
-
         function startGame() {
-            playing = true; score = 0; obstacles = []; py = 0; pv = 0; roadOffset = 0;
+            playing = true; 
+            score = 0; 
+            obstacles = []; 
+            py = 0; 
+            pv = 0; 
+            frame = 0;
             document.getElementById('boot').style.display = 'none';
             gameLoop();
         }
 
         function drawRoad(floor, color) {
-            gCtx.fillStyle = "rgba(20, 20, 25, 0.8)";
-            gCtx.beginPath();
-            gCtx.moveTo(0, floor);
-            gCtx.lineTo(gCanvas.width, floor);
-            gCtx.lineTo(gCanvas.width, gCanvas.height);
-            gCtx.lineTo(0, gCanvas.height);
-            gCtx.fill();
+            gCtx.fillStyle = "rgba(20, 20, 25, 0.9)";
+            gCtx.fillRect(0, floor, gCanvas.width, gCanvas.height - floor);
 
             gCtx.strokeStyle = color;
-            gCtx.lineWidth = 3;
+            gCtx.lineWidth = 4;
             gCtx.beginPath();
             gCtx.moveTo(0, floor);
             gCtx.lineTo(gCanvas.width, floor);
             gCtx.stroke();
 
-            roadOffset += 15;
-            if(roadOffset > 80) roadOffset = 0;
-
-            for(let x = -roadOffset; x < gCanvas.width; x += 80) {
+            roadOffset = (roadOffset + 14) % 80;
+            gCtx.lineWidth = 1;
+            gCtx.globalAlpha = 0.2;
+            for(let x = -roadOffset; x < gCanvas.width + 100; x += 80) {
                 gCtx.beginPath();
-                gCtx.globalAlpha = 0.2;
                 gCtx.moveTo(x, floor);
-                gCtx.lineTo(x - 100, gCanvas.height);
+                gCtx.lineTo(x - 120, gCanvas.height);
                 gCtx.stroke();
-                gCtx.globalAlpha = 1;
             }
+            gCtx.globalAlpha = 1;
         }
 
         function jump() {
-            if(playing && py === 0) {
-                pv = -22; 
-            }
+            if(playing && py === 0) pv = -22; 
         }
 
         function gameLoop() {
@@ -286,27 +283,32 @@
             gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
             drawRoad(floor, color);
 
+            // Física
             pv += 1.1; 
             py += pv;
             if(py > 0) { py = 0; pv = 0; }
 
+            // Moto
             gCtx.save();
             gCtx.font = "70px Arial";
             gCtx.shadowBlur = 15;
             gCtx.shadowColor = color;
-            gCtx.translate(100, floor + py - 5); 
+            gCtx.translate(100, floor + py - 10); 
             gCtx.scale(-1, 1);
             gCtx.fillText("🏍️", 0, 0);
             gCtx.restore();
 
-            if(frame % 80 === 0) obstacles.push({ x: gCanvas.width, type: "🚧" });
+            // Obstáculos
+            if(frame % 85 === 0) obstacles.push({ x: gCanvas.width, type: "🚧" });
             
             obstacles.forEach((o, i) => {
-                o.x -= 12;
+                o.x -= 13;
                 gCtx.font = "60px Arial";
-                gCtx.fillText(o.type, o.x, floor - 5);
+                gCtx.fillText(o.type, o.x, floor - 10);
                 
-                if(o.x > 30 && o.x < 110 && py > -50) {
+                // HITBOX REFINADA (A moto está no X=100)
+                // Se o obstáculo entrar na frente da moto (60 a 110) e ela não estiver alta o suficiente (-45)
+                if(o.x > 60 && o.x < 110 && py > -45) {
                     playing = false;
                     document.getElementById('boot').style.display = 'flex';
                 }
@@ -316,15 +318,13 @@
 
             document.getElementById('score').innerText = score.toString().padStart(4, '0');
             frame++; 
-            requestAnimationFrame(gameLoop);
+            gameId = requestAnimationFrame(gameLoop);
         }
 
+        // EVENTOS
         window.addEventListener('touchstart', (e) => { 
             if (e.target.closest('.cyber-btn') || e.target.closest('a')) return; 
-            if (playing) {
-                e.preventDefault();
-                jump();
-            }
+            if (playing) { e.preventDefault(); jump(); }
         }, {passive: false});
 
         window.addEventListener('mousedown', (e) => {
@@ -332,7 +332,12 @@
             if (playing) jump();
         });
 
-        window.onresize = () => { initStars(); };
+        window.onresize = () => { initStars(); resizeGameCanvas(); };
+
+        function initSystem() {
+            initStars();
+            animateStars();
+        }
     </script>
 </body>
 </html>
