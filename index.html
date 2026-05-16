@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TITAN_WARP_SPEED_V17</title>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
 
@@ -13,166 +13,338 @@
             --p: #00f2ff;
             --s: #ff0055;
             --bg: #030305;
+            --text: #ffffff;
             --glow: 0 0 25px var(--p);
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        /* --- BARRA DE ROLAGEM PERSONALIZADA --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            background: radial-gradient(circle at top, rgba(0,242,255,0.08), transparent 30%), var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--p); 
-            border-radius: 10px; 
+        ::-webkit-scrollbar-thumb {
+            background: var(--p);
+            border-radius: 10px;
             box-shadow: 0 0 10px var(--p);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            height: 100vh;
-            overflow-x: hidden;
-            overflow-y: auto; /* Permitir scroll se o conteúdo crescer */
+        #particle-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
         }
 
-        #particle-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
-
-        /* --- ANIMAÇÃO DE ENTRADA --- */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .wrapper {
-            display: flex; flex-direction: column; min-height: 100vh;
-            padding: 25px 15px; gap: 15px; max-width: 1200px; margin: 0 auto;
-            transition: transform 0.5s ease;
-            animation: fadeUp 0.8s ease-out; /* Anima o site todo ao abrir */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            gap: 16px;
+            animation: fadeUp 0.8s ease-out;
         }
 
-        .menu-hidden { transform: translateY(-120%); pointer-events: none; }
+        .menu-hidden {
+            transform: translateY(-120%);
+            pointer-events: none;
+        }
 
         header {
             background: var(--glass);
-            backdrop-filter: blur(10px); /* EFEITO VIDRO */
+            backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            padding: 20px; text-align: center;
-            box-shadow: var(--glow); border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: var(--glow);
+            border-radius: 14px;
             border-bottom: 2px solid var(--p);
         }
 
-        .profile-area { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(14px, 2vw, 20px);
+            letter-spacing: 4px;
+            color: var(--p);
+            text-shadow: var(--glow);
+        }
+
+        .profile-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 18px 8px 10px;
+        }
 
         .photo-frame {
-            width: 160px; height: 160px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             border: 4px solid var(--p);
-            padding: 5px; cursor: pointer;
+            padding: 5px;
+            cursor: pointer;
             box-shadow: var(--glow);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
             background: var(--bg);
+            outline: none;
         }
 
-        .photo-frame:hover { transform: scale(1.1) rotate(5deg); border-color: var(--s); }
+        .photo-frame:hover {
+            transform: scale(1.06) rotate(2deg);
+            border-color: var(--s);
+            box-shadow: 0 0 32px var(--p);
+        }
 
-        .photo-frame img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .photo-frame:focus-visible,
+        .cyber-btn:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 3px;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .name {
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 18px;
+            letter-spacing: 4px;
+            font-size: clamp(22px, 3vw, 34px);
+            text-align: center;
+        }
+
+        .status {
+            font-size: 11px;
+            color: var(--p);
+            margin-top: 8px;
+            margin-bottom: 10px;
+            opacity: 0.85;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .bio {
+            max-width: 620px;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 24px;
+        }
 
         .links-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            width: 100%; margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+            margin-top: 8px;
         }
 
-        /* --- BOTÕES TURBINADOS --- */
         .cyber-btn {
             background: var(--glass);
             backdrop-filter: blur(5px);
             border: 1px solid var(--p);
-            color: #fff; padding: 18px; font-family: 'Orbitron';
-            text-decoration: none; text-align: center; font-size: 11px;
-            cursor: pointer; transition: all 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            color: var(--text);
+            padding: 18px;
+            font-family: 'Orbitron', sans-serif;
+            text-decoration: none;
+            text-align: center;
+            font-size: 11px;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, color 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             touch-action: manipulation;
-            border-radius: 8px;
+            border-radius: 10px;
             letter-spacing: 1px;
             position: relative;
             overflow: hidden;
+            min-height: 58px;
         }
 
-        .cyber-btn:hover { 
-            background: var(--p); 
-            color: #000; 
-            box-shadow: 0 0 40px var(--p);
-            transform: translateY(-3px);
+        .cyber-btn:hover {
+            background: var(--p);
+            color: #000;
+            box-shadow: 0 0 34px var(--p);
+            transform: translateY(-2px);
         }
 
-        .cyber-btn i { font-size: 16px; }
+        .cyber-btn i {
+            font-size: 15px;
+        }
 
-        /* Delay nas animações dos botões */
-        .cyber-btn:nth-child(1) { animation: fadeUp 0.5s ease backwards 0.2s; }
-        .cyber-btn:nth-child(2) { animation: fadeUp 0.5s ease backwards 0.3s; }
-        .cyber-btn:nth-child(3) { animation: fadeUp 0.5s ease backwards 0.4s; }
-        .cyber-btn:nth-child(4) { animation: fadeUp 0.5s ease backwards 0.5s; }
+        .wide-btn {
+            width: 100%;
+            margin-top: 22px;
+            border-width: 2px;
+            font-weight: 900;
+            min-height: 60px;
+        }
 
-        .game-viewport { position: fixed; inset: 0; background: #000; z-index: 100; display: none; }
-        #game-canvas { width: 100%; height: 100%; display: block; }
+        .game-viewport {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 100;
+            display: none;
+        }
+
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
 
         .game-ui {
-            position: absolute; top: 20px; width: 100%; padding: 0 30px;
-            display: flex; justify-content: space-between; font-family: 'Orbitron';
-            pointer-events: none; z-index: 110;
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Orbitron', sans-serif;
+            pointer-events: none;
+            z-index: 110;
+            font-size: 12px;
         }
 
-        .exit-btn { position: absolute; bottom: 20px; right: 20px; z-index: 120; font-size: 10px; pointer-events: auto; }
+        .exit-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 120;
+            font-size: 10px;
+            pointer-events: auto;
+            min-width: 120px;
+        }
 
         .overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.95);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 130;
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 130;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .overlay h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--p);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            font-size: 20px;
         }
 
         footer {
             margin-top: auto;
             text-align: center;
             font-size: 10px;
-            opacity: 0.5;
-            padding: 20px;
+            opacity: 0.55;
+            padding: 18px 10px 8px;
             letter-spacing: 2px;
         }
 
-        @media (max-width: 768px) { .links-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .photo-frame {
+                width: 140px;
+                height: 140px;
+            }
+
+            .bio {
+                font-size: 12px;
+                padding: 0 10px;
+            }
+
+            .game-ui {
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body onload="initSystem()">
-
     <canvas id="particle-canvas"></canvas>
 
     <div class="wrapper" id="mainMenu">
         <header>
-            <h1 style="font-family: 'Orbitron'; font-size: 14px; letter-spacing: 5px; color: var(--p); text-shadow: var(--glow);">TITAN_WARP_SPEED // V17</h1>
+            <h1 class="title">TITAN_WARP_SPEED // V17</h1>
         </header>
 
-        <section class="profile-area">
-            <div class="photo-frame" onclick="changeTheme()" id="mainPhoto">
-                <img src="20260207_132012[1].jpg" alt="Charlys">
-            </div>
-            <h2 style="font-family: 'Orbitron'; margin-top: 20px; letter-spacing: 4px; color: #fff;">CHARLYS</h2>
-            <p style="font-size: 9px; color: var(--p); margin-bottom: 10px; opacity: 0.8;">[ SYSTEM_ACTIVE ]</p>
-            
-            <div class="links-grid">
-                <a href="https://instagram.com/inimigo_do_amigo.ofc" target="_blank" class="cyber-btn"><i class="fab fa-instagram"></i> INSTAGRAM</a>
-                <a href="https://wa.me/5569992919920" target="_blank" class="cyber-btn"><i class="fab fa-whatsapp"></i> WHATSAPP</a>
-                <a href="https://discord.gg/Hgz4j5XXv" target="_blank" class="cyber-btn"><i class="fab fa-discord"></i> DISCORD</a>
-                <div id="radioBtn" onclick="toggleRadio()" class="cyber-btn">
-                    <i class="fas fa-broadcast-tower"></i> <span id="radioStatus">RADIO_OFF</span>
+        <main>
+            <section class="profile-area">
+                <div class="photo-frame" onclick="changeTheme()" id="mainPhoto" tabindex="0" role="button" aria-label="Trocar tema">
+                    <img src="20260207_132012[1].jpg" alt="Foto de Charlys">
                 </div>
-            </div>
 
-            <button onclick="enterGameMode()" class="cyber-btn" style="width: 100%; margin-top: 25px; border-width: 2px; font-weight: 900; animation: fadeUp 0.5s ease backwards 0.6s;">
-                <i class="fas fa-rocket"></i> VIAJAR_NA_VELOCIDADE_DO_SOM
-            </button>
-        </section>
+                <h2 class="name">CHARLYS</h2>
+                <p class="status">[ SYSTEM_ACTIVE ]</p>
+                <p class="bio">
+                    Perfil com identidade cyber/neon, links rápidos e um modo interativo para navegar de forma mais divertida.
+                </p>
+
+                <div class="links-grid">
+                    <a href="https://instagram.com/inimigo_do_amigo.ofc" target="_blank" rel="noopener noreferrer" class="cyber-btn" aria-label="Abrir Instagram">
+                        <i class="fab fa-instagram"></i> INSTAGRAM
+                    </a>
+
+                    <a href="https://wa.me/5569992919920" target="_blank" rel="noopener noreferrer" class="cyber-btn" aria-label="Abrir WhatsApp">
+                        <i class="fab fa-whatsapp"></i> WHATSAPP
+                    </a>
+
+                    <a href="https://discord.gg/Hgz4j5XXv" target="_blank" rel="noopener noreferrer" class="cyber-btn" aria-label="Abrir Discord">
+                        <i class="fab fa-discord"></i> DISCORD
+                    </a>
+
+                    <button id="radioBtn" type="button" class="cyber-btn" aria-pressed="false">
+                        <i class="fas fa-broadcast-tower"></i> <span id="radioStatus">RADIO_OFF</span>
+                    </button>
+                </div>
+
+                <button type="button" onclick="enterGameMode()" class="cyber-btn wide-btn">
+                    <i class="fas fa-rocket"></i> VIAJAR_NA_VELOCIDADE_DO_SOM
+                </button>
+            </section>
+        </main>
 
         <footer>
             DESIGNED BY CHARLYS // © 2026
@@ -184,11 +356,14 @@
             <div style="color: var(--p);">SCORE: <span id="score">0000</span></div>
             <div style="color: var(--s);">FPS: 120</div>
         </div>
+
         <canvas id="game-canvas"></canvas>
-        <button onclick="exitGameMode()" class="cyber-btn exit-btn">SAIR</button>
+
+        <button type="button" onclick="exitGameMode()" class="cyber-btn exit-btn">SAIR</button>
+
         <div id="boot" class="overlay">
-            <h2 style="font-family:'Orbitron'; color: var(--p); margin-bottom: 20px;">HYPERSPACE_READY</h2>
-            <button onclick="startGame()" class="cyber-btn" style="width: 200px;">ENGAGE</button>
+            <h2>HYPERSPACE_READY</h2>
+            <button type="button" onclick="startGame()" class="cyber-btn" style="width: 200px;">ENGAGE</button>
         </div>
     </div>
 
@@ -197,9 +372,9 @@
     </audio>
 
     <script>
-        // MANTIVE TODA A TUA LÓGICA ORIGINAL POIS ELA ESTÁ EXCELENTE!
         const radio = document.getElementById('cyberRadio');
         const radioStatus = document.getElementById('radioStatus');
+        const radioBtn = document.getElementById('radioBtn');
         let radioPlaying = false;
         let audioCtx, analyzer, source;
 
@@ -212,19 +387,23 @@
             analyzer.connect(audioCtx.destination);
         }
 
-        function toggleRadio() {
+        async function toggleRadio() {
             setupAudioAnalysis();
             if (!radioPlaying) {
-                if(audioCtx.state === 'suspended') audioCtx.resume();
-                radio.play();
+                if (audioCtx.state === 'suspended') await audioCtx.resume();
+                await radio.play();
                 radioStatus.innerText = "RADIO_ON";
+                radioBtn.setAttribute('aria-pressed', 'true');
                 radioPlaying = true;
             } else {
                 radio.pause();
                 radioStatus.innerText = "RADIO_OFF";
+                radioBtn.setAttribute('aria-pressed', 'false');
                 radioPlaying = false;
             }
         }
+
+        radioBtn.addEventListener('click', toggleRadio);
 
         const pCanvas = document.getElementById('particle-canvas');
         const pCtx = pCanvas.getContext('2d');
@@ -235,10 +414,10 @@
             pCanvas.width = window.innerWidth;
             pCanvas.height = window.innerHeight;
             stars = [];
-            for(let i=0; i<numStars; i++) {
+            for (let i = 0; i < numStars; i++) {
                 stars.push({
-                    x: Math.random() * pCanvas.width - pCanvas.width/2,
-                    y: Math.random() * pCanvas.height - pCanvas.height/2,
+                    x: Math.random() * pCanvas.width - pCanvas.width / 2,
+                    y: Math.random() * pCanvas.height - pCanvas.height / 2,
                     z: Math.random() * pCanvas.width
                 });
             }
@@ -247,21 +426,26 @@
         function animateStars() {
             pCtx.fillStyle = "rgba(3, 3, 5, 0.3)";
             pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
-            let color = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
+            const color = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
             pCtx.fillStyle = color;
+
             stars.forEach(s => {
                 s.z -= 15;
-                if(s.z <= 0) s.z = pCanvas.width;
-                let sx = (s.x / s.z) * pCanvas.width + pCanvas.width/2;
-                let sy = (s.y / s.z) * pCanvas.height + pCanvas.height/2;
-                let size = (1 - s.z / pCanvas.width) * 3;
-                pCtx.beginPath(); pCtx.arc(sx, sy, size, 0, Math.PI*2); pCtx.fill();
+                if (s.z <= 0) s.z = pCanvas.width;
+                const sx = (s.x / s.z) * pCanvas.width + pCanvas.width / 2;
+                const sy = (s.y / s.z) * pCanvas.height + pCanvas.height / 2;
+                const size = (1 - s.z / pCanvas.width) * 3;
+                pCtx.beginPath();
+                pCtx.arc(sx, sy, size, 0, Math.PI * 2);
+                pCtx.fill();
             });
+
             requestAnimationFrame(animateStars);
         }
 
         const themes = ['#00f2ff', '#ff0055', '#bcff00', '#ffaa00', '#a200ff'];
         let currentTheme = 0;
+
         function changeTheme() {
             currentTheme = (currentTheme + 1) % themes.length;
             document.documentElement.style.setProperty('--p', themes[currentTheme]);
@@ -292,7 +476,12 @@
         }
 
         function startGame() {
-            playing = true; score = 0; obstacles = []; py = 0; pv = 0; frame = 0;
+            playing = true;
+            score = 0;
+            obstacles = [];
+            py = 0;
+            pv = 0;
+            frame = 0;
             document.getElementById('boot').style.display = 'none';
             gameLoop();
         }
@@ -306,64 +495,101 @@
             gCtx.moveTo(0, floor);
             gCtx.lineTo(gCanvas.width, floor);
             gCtx.stroke();
+
             roadOffset = (roadOffset + 14) % 80;
             gCtx.lineWidth = 1;
             gCtx.globalAlpha = 0.2;
-            for(let x = -roadOffset; x < gCanvas.width + 100; x += 80) {
+
+            for (let x = -roadOffset; x < gCanvas.width + 100; x += 80) {
                 gCtx.beginPath();
                 gCtx.moveTo(x, floor);
                 gCtx.lineTo(x - 120, gCanvas.height);
                 gCtx.stroke();
             }
+
             gCtx.globalAlpha = 1;
         }
 
-        function jump() { if(playing && py === 0) pv = -22; }
+        function jump() {
+            if (playing && py === 0) pv = -22;
+        }
 
         function gameLoop() {
-            if(!playing) return;
-            let floor = gCanvas.height * 0.75; 
-            let color = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
+            if (!playing) return;
+
+            const floor = gCanvas.height * 0.75;
+            const color = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
+
             gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
             drawRoad(floor, color);
-            pv += 1.1; py += pv;
-            if(py > 0) { py = 0; pv = 0; }
+
+            pv += 1.1;
+            py += pv;
+
+            if (py > 0) {
+                py = 0;
+                pv = 0;
+            }
+
             gCtx.save();
             gCtx.font = "70px Arial";
             gCtx.shadowBlur = 15;
             gCtx.shadowColor = color;
-            gCtx.translate(100, floor + py - 10); 
+            gCtx.translate(100, floor + py - 10);
             gCtx.scale(-1, 1);
             gCtx.fillText("🏍️", 0, 0);
             gCtx.restore();
-            if(frame % 85 === 0) obstacles.push({ x: gCanvas.width, type: "🚧" });
+
+            if (frame % 85 === 0) obstacles.push({ x: gCanvas.width, type: "🚧" });
+
             obstacles.forEach((o, i) => {
                 o.x -= 13;
                 gCtx.font = "60px Arial";
                 gCtx.fillText(o.type, o.x, floor - 10);
-                if(o.x > 60 && o.x < 110 && py > -45) {
+
+                if (o.x > 60 && o.x < 110 && py > -45) {
                     playing = false;
                     document.getElementById('boot').style.display = 'flex';
                 }
-                if(o.x < -100) { obstacles.splice(i, 1); score += 100; }
+
+                if (o.x < -100) {
+                    obstacles.splice(i, 1);
+                    score += 100;
+                }
             });
+
             document.getElementById('score').innerText = score.toString().padStart(4, '0');
-            frame++; 
+            frame++;
             gameId = requestAnimationFrame(gameLoop);
         }
 
-        window.addEventListener('touchstart', (e) => { 
-            if (e.target.closest('.cyber-btn') || e.target.closest('a')) return; 
-            if (playing) { e.preventDefault(); jump(); }
-        }, {passive: false});
+        window.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.cyber-btn') || e.target.closest('a')) return;
+            if (playing) {
+                e.preventDefault();
+                jump();
+            }
+        }, { passive: false });
 
         window.addEventListener('mousedown', (e) => {
             if (e.target.closest('.cyber-btn') || e.target.closest('a')) return;
             if (playing) jump();
         });
 
-        window.onresize = () => { initStars(); resizeGameCanvas(); };
-        function initSystem() { initStars(); animateStars(); }
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && playing) jump();
+        });
+
+        window.addEventListener('resize', () => {
+            initStars();
+            resizeGameCanvas();
+        });
+
+        function initSystem() {
+            initStars();
+            animateStars();
+            resizeGameCanvas();
+        }
     </script>
 </body>
 </html>
